@@ -1,12 +1,12 @@
 // app/admin/page.tsx
 "use client"; // 클라이언트 컴포넌트임을 명시
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { auth, db } from '@/firebase/config'; // Firebase 초기화 파일 경로 (경로 확인 필요)
-import { User, onAuthStateChanged, signOut } from 'firebase/auth';
-import {collection, getDocs, addDoc, updateDoc, deleteDoc, doc, getDoc} from 'firebase/firestore';
-import { TailSpin } from 'react-loader-spinner'; // 설치 필요: npm install react-loader-spinner
+import {useEffect, useState} from 'react';
+import {useRouter} from 'next/navigation';
+import {auth, db} from '@/firebase/config'; // Firebase 초기화 파일 경로 (경로 확인 필요)
+import {onAuthStateChanged, signOut, User} from 'firebase/auth';
+import {addDoc, collection, deleteDoc, doc, getDoc, getDocs} from 'firebase/firestore';
+import {TailSpin} from 'react-loader-spinner'; // 설치 필요: npm install react-loader-spinner
 
 // AdminDashboard 컴포넌트 (실제 /admin 페이지의 내용)
 const AdminDashboard = () => {
@@ -19,7 +19,6 @@ const AdminDashboard = () => {
   // 인증 상태 변화 감지 및 보호된 경로 접근 제어
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      console.log(currentUser)
       if (currentUser) {
         const userDocRef = doc(db, 'users', currentUser.uid); // ★ 사용자 정보가 저장된 컬렉션 경로 확인 ('users' 또는 다른 이름)
         const userDocSnap = await getDoc(userDocRef);
@@ -49,7 +48,6 @@ const AdminDashboard = () => {
         // TODO: 실제 운영 시에는 여기서 Firestore 등에서 관리자 권한 추가 확인
         fetchData(); // 로그인된 사용자라면 데이터 로딩
       } else {
-        console.log('???')
         // 사용자가 로그아웃됨 또는 로그인되지 않음
         // 관리자 페이지 접근 시 로그인되지 않았다면 로그인 페이지로 리다이렉트
         router.push('/login'); // ★ 로그인 페이지 경로를 '/admin/login'으로 수정
@@ -68,12 +66,12 @@ const AdminDashboard = () => {
       console.log("Fetching data for user:", user.email); // 디버깅용 로그
       const leaguesCollection = collection(db, 'leagues');
       const leaguesSnapshot = await getDocs(leaguesCollection);
-      const leaguesList = leaguesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const leaguesList = leaguesSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
       setLeagues(leaguesList);
 
       const skatersCollection = collection(db, 'skaters');
       const skatersSnapshot = await getDocs(skatersCollection);
-      const skatersList = skatersSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      const skatersList = skatersSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
       setSkaters(skatersList);
 
       // TODO: 심사 결과 등 필요한 다른 데이터도 가져오기
@@ -150,7 +148,7 @@ const AdminDashboard = () => {
   if (loading || !user) { // user가 없으면 로딩 중 상태로 간주하여 리다이렉트 기다림
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <TailSpin color="#00BFFF" height={80} width={80} /> {/* 로딩 스피너 */}
+        <TailSpin color="#00BFFF" height={80} width={80}/> {/* 로딩 스피너 */}
         {/* 로딩 메시지 */}
         {loading ? <p className="ml-4">인증 확인 중...</p> : <p className="ml-4">로그인 상태 확인 중...</p>}
       </div>
@@ -180,18 +178,21 @@ const AdminDashboard = () => {
           const form = e.target as HTMLFormElement;
           const name = (form.elements.namedItem('leagueName') as HTMLInputElement).value;
           const date = (form.elements.namedItem('leagueDate') as HTMLInputElement).value;
-          addLeague({ name, date, createdAt: new Date() }); // 예시 데이터
+          addLeague({name, date, createdAt: new Date()}); // 예시 데이터
           form.reset();
         }} className="mb-4 p-4 border rounded shadow">
           <div className="mb-4">
             <label htmlFor="leagueName" className="block text-gray-700 text-sm font-bold mb-2">리그 이름</label>
-            <input type="text" id="leagueName" placeholder="리그 이름" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <input type="text" id="leagueName" placeholder="리그 이름" required
+                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
           </div>
           <div className="mb-4">
             <label htmlFor="leagueDate" className="block text-gray-700 text-sm font-bold mb-2">날짜</label>
-            <input type="date" id="leagueDate" required className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+            <input type="date" id="leagueDate" required
+                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
           </div>
-          <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+          <button type="submit"
+                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             리그 추가
           </button>
         </form>

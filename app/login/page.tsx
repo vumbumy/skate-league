@@ -20,15 +20,12 @@ const LoginPage = () => {
 
     try {
       const {user} = await signInWithEmailAndPassword(auth, email, password);
-
-      console.log(user)
-
       // TODO: 로그인 성공 후 이 사용자가 관리자인지 확인하는 로직 추가
       // 예: Firestore 'admins' 컬렉션에서 user.uid를 찾거나, user custom claims 확인
 
       // 임시로 모든 로그인 사용자를 관리자로 간주하고 /admin으로 리다이렉트
       // 실제로는 여기서 관리자 여부를 판단하여 다른 페이지로 보낼 수 있습니다.
-      router.push('/'); // 관리자는 관리자 대시보드로 이동
+      router.push('/admin'); // 관리자는 관리자 대시보드로 이동
       // 또는 관리자가 아니면 router.push('/'); 등 다른 페이지로 이동
 
     } catch (err: any) {
@@ -39,7 +36,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen w-md">
+    <div className="flex justify-center items-center min-h-screen">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-6 text-center">로그인</h1> {/* 일반 로그인 페이지 */}
         <form onSubmit={handleLogin}>
