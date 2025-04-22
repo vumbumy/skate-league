@@ -12,8 +12,8 @@ import {TailSpin} from 'react-loader-spinner'; // 설치 필요: npm install rea
 const AdminDashboard = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [leagues, setLeagues] = useState<any[]>([]); // 리그 데이터 상태
-  const [skaters, setSkaters] = useState<any[]>([]); // 스케이터 데이터 상태
+  const [leagues, setLeagues] = useState<League[]>([]); // 리그 데이터 상태
+  const [skaters, setSkaters] = useState<Skater[]>([]); // 스케이터 데이터 상태
   const router = useRouter();
 
   // 인증 상태 변화 감지 및 보호된 경로 접근 제어
@@ -66,12 +66,21 @@ const AdminDashboard = () => {
       console.log("Fetching data for user:", user.email); // 디버깅용 로그
       const leaguesCollection = collection(db, 'leagues');
       const leaguesSnapshot = await getDocs(leaguesCollection);
-      const leaguesList = leaguesSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+      const leaguesList: League[] = leaguesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() as Omit<League, 'id'> // id 필드를 제외한 나머지 데이터를 UserData 타입으로 단언
+        // Timestamp 필드를 Date 객체로 변환하는 로직 필요시 추가
+        // 예: date: (doc.data().date as firebase.firestore.Timestamp)?.toDate()
+      }));
       setLeagues(leaguesList);
 
       const skatersCollection = collection(db, 'skaters');
       const skatersSnapshot = await getDocs(skatersCollection);
-      const skatersList = skatersSnapshot.docs.map(doc => ({id: doc.id, ...doc.data()}));
+      const skatersList: Skater[] = skatersSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data() as Omit<Skater, 'id'> // id 필드를 제외한 나머지 데이터를 Skater 타입으로 단언
+        // TODO: 필요한 다른 필드 변환
+      }));
       setSkaters(skatersList);
 
       // TODO: 심사 결과 등 필요한 다른 데이터도 가져오기
@@ -206,7 +215,7 @@ const AdminDashboard = () => {
             {leagues.map((league) => (
               <li key={league.id} className="mb-2 flex justify-between items-center bg-white p-2 rounded shadow-sm">
                 <span>
-                  {league.name} ({new Date(league.date?.seconds * 1000).toLocaleDateString()})
+                  {league.name} ({league.date?.toLocaleDateString() || '날짜 미지정'})
                 </span>
                 <div>
                   {/* TODO: 리그 상세 페이지 링크 또는 수정 버튼 추가 */}

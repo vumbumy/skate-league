@@ -19,7 +19,7 @@ const LoginPage = () => {
     setError(null); // 에러 초기화
 
     try {
-      const {user} = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
       // TODO: 로그인 성공 후 이 사용자가 관리자인지 확인하는 로직 추가
       // 예: Firestore 'admins' 컬렉션에서 user.uid를 찾거나, user custom claims 확인
 

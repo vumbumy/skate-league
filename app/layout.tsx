@@ -3,18 +3,11 @@
 
 import {usePathname} from 'next/navigation';
 import './globals.css';
-import {useEffect, useState} from "react";
-import {Inter} from 'next/font/google';
 import {AuthProvider} from "@/context/AuthContext";
 import GnbRenderer from "@/components/GNBRenderer";
 
-const inter = Inter({subsets: ['latin']});
 
-export default function RootLayout({
-                                     children,
-                                   }: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({children}: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // '/login'과 '/signup' 경로를 모두 포함
