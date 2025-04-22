@@ -3,9 +3,11 @@
 
 import {usePathname} from 'next/navigation';
 import './globals.css';
-import GlobalNavigationBar from "@/components/GlobalNavigationBar";
-import {useEffect, useState} from "react"; // 전역 스타일시트 (Tailwind CSS 포함)
+import GNBRenderer from "@/components/GNBRenderer";
+import {useEffect, useState} from "react";
+import {Inter} from 'next/font/google';
 
+const inter = Inter({subsets: ['latin']});
 
 export default function RootLayout({
                                      children,
@@ -33,12 +35,13 @@ export default function RootLayout({
 
   return (
     <html lang="ko">
-    <body className="bg-gray-100 text-gray-900">
-    {/* 로그인 페이지가 아니면 GNB를 렌더링 */}
-    {shouldRenderGnb && <GlobalNavigationBar/>}
-
-    {/* 하위 페이지 콘텐츠 */}
-    {children}
+    <body className={`${inter.className} bg-gray-100`}>
+    <div className='h-screen flex flex-col items-center mx-auto'>
+      {shouldRenderGnb && <GNBRenderer/>}
+      <div className='flex items-center h-full'>
+        {children}
+      </div>
+    </div>
     </body>
     </html>
   );

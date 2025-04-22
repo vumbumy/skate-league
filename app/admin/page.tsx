@@ -49,6 +49,7 @@ const AdminDashboard = () => {
         // TODO: 실제 운영 시에는 여기서 Firestore 등에서 관리자 권한 추가 확인
         fetchData(); // 로그인된 사용자라면 데이터 로딩
       } else {
+        console.log('???')
         // 사용자가 로그아웃됨 또는 로그인되지 않음
         // 관리자 페이지 접근 시 로그인되지 않았다면 로그인 페이지로 리다이렉트
         router.push('/login'); // ★ 로그인 페이지 경로를 '/admin/login'으로 수정
@@ -112,21 +113,21 @@ const AdminDashboard = () => {
   };
 
   // 스케이터 정보 업데이트
-  const updateSkaters = async (skaterId: string, updatedData: any) => {
-    if (!user) { // 로그인 상태가 아니면 실행하지 않음
-      console.warn("로그인되지 않은 사용자는 스케이터를 업데이트할 수 없습니다.");
-      return;
-    }
-    try {
-      const skaterRef = doc(db, 'skaters', skaterId);
-      await updateDoc(skaterRef, updatedData);
-      console.log("스케이터 업데이트 성공:", skaterId);
-      fetchData(); // 데이터 새로고침
-    } catch (e) {
-      console.error("스케이터 업데이트 에러:", e);
-      // 에러 처리 로직 추가
-    }
-  };
+  // const updateSkaters = async (skaterId: string, updatedData: any) => {
+  //   if (!user) { // 로그인 상태가 아니면 실행하지 않음
+  //     console.warn("로그인되지 않은 사용자는 스케이터를 업데이트할 수 없습니다.");
+  //     return;
+  //   }
+  //   try {
+  //     const skaterRef = doc(db, 'skaters', skaterId);
+  //     await updateDoc(skaterRef, updatedData);
+  //     console.log("스케이터 업데이트 성공:", skaterId);
+  //     fetchData(); // 데이터 새로고침
+  //   } catch (e) {
+  //     console.error("스케이터 업데이트 에러:", e);
+  //     // 에러 처리 로직 추가
+  //   }
+  // };
 
   // 리그 삭제
   const deleteLeague = async (leagueId: string) => {
@@ -158,9 +159,9 @@ const AdminDashboard = () => {
 
   // 인증 확인 완료 및 로그인된 사용자에게만 대시보드 UI 렌더링
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">관리자 대시보드</h1>
-      <p>안녕하세요, {user.email}님!</p>
+    <div className='w-full p-4'>
+      {/*<h1 className="text-3xl font-bold mb-6">관리자 대시보드</h1>*/}
+      {/*<p>안녕하세요, {user.email}님!</p>*/}
 
       {/* 로그아웃 버튼 */}
       <button
