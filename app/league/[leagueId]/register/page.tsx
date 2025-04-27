@@ -77,8 +77,7 @@ const LeagueRegistrationPage = () => {
 
     // 2. 스케이터 정보 보완 여부 확인 (userData는 AuthProvider에서 이미 로드됨)
     // 필수 필드 존재 여부로 판단 (UserData 인터페이스의 name, dateOfBirth 예시)
-    const isProfileComplete = userData?.name && userData?.dateOfBirth; // ★ 실제 필수 필드에 맞게 수정 (UserData가 null이면 false)
-
+    const isProfileComplete = !!userData?.name && !!userData?.dateOfBirth; // ★ 실제 필수 필드에 맞게 수정 (UserData가 null이면 false)
     if (!isProfileComplete) {
       // Profile is INCOMPLETE -> Redirect to complete profile page
       console.warn("Skater profile incomplete. Redirecting to complete profile page.");
@@ -100,7 +99,7 @@ const LeagueRegistrationPage = () => {
     }
 
     // 리그 데이터가 아직 로드되지 않았거나, 기 등록 여부가 아직 확인되지 않은 경우 로딩 및 확인 시작
-    if (league === null || isAlreadyRegistered === false) { // isAlreadyRegistered가 false인 경우 (확인 필요 상태)
+    if (loadingState !== States.LEAGUE && !isAlreadyRegistered) { // isAlreadyRegistered가 false인 경우 (확인 필요 상태)
       setLoadingState(States.LEAGUE); // 리그 데이터 로딩 중
       fetchLeagueData(leagueId, user.uid); // ★ 리그 데이터 로딩 및 기 등록 여부 확인 함수 호출
       return; // 로딩 완료 대기
