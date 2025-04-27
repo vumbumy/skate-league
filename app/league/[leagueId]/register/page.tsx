@@ -10,7 +10,9 @@ import {addDoc, collection, doc, DocumentSnapshot, getDoc, getDocs, query, where
 import {db} from '@/firebase/config'; // db import 유지
 // 로딩 스피너
 import {TailSpin} from 'react-loader-spinner';
-import Link from 'next/link'; // 링크 이동을 위해 Link 컴포넌트 import
+import Link from 'next/link';
+import {League} from "@/types/firebase";
+import {State, States} from "@/types"; // 링크 이동을 위해 Link 컴포넌트 import
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
 // import { League, UserData } from '@/types'; // Assuming these are in '@/types'
@@ -39,11 +41,11 @@ const LeagueRegistrationPage = () => {
   // 페이지 상태
   const [league, setLeague] = useState<League | null>(null); // Data for the league being registered for
   // pageLoading 상태를 세분화하여 각 단계 로딩을 표시합니다.
-  const [loadingState, setLoadingState] = useState<'auth' | 'profile' | 'league' | 'registration_check' | 'idle' | 'error'>('auth');
+  const [loadingState, setLoadingState] = useState<State>(States.AUTH);
   const [errorMessage, setErrorMessage] = useState<string | null>(null); // 페이지 로딩 중 에러 메시지
 
   // 등록 처리 상태
-  const [registrationProcessState, setRegistrationProcessState] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
+  const [registrationProcessState, setRegistrationProcessState] = useState<State>(States.IDLE);
   const [registrationError, setRegistrationError] = useState<string | null>(null); // Error from registration process
 
   // 등록 전 확인 상태
@@ -58,7 +60,7 @@ const LeagueRegistrationPage = () => {
   useEffect(() => {
     // 1. 인증 상태 확인
     if (authLoading) {
-      setLoadingState('auth'); // 인증 로딩 중
+      setLoadingState(States.AUTH); // 인증 로딩 중
       return; // 로딩 완료 대기
     }
 
@@ -90,7 +92,7 @@ const LeagueRegistrationPage = () => {
     // 3. 리그 데이터 로딩 및 해당 리그 기 등록 여부 확인
     if (!leagueId) {
       console.error("League ID is missing in URL.");
-      setLoadingState('error');
+      setLoadingState(States.ERROR);
       setErrorMessage("리그 정보를 불러오는데 실패했습니다.");
       // router.push('/league'); // 잘못된 경로면 리다이렉트
       return; // 중단
@@ -98,13 +100,13 @@ const LeagueRegistrationPage = () => {
 
     // 리그 데이터가 아직 로드되지 않았거나, 기 등록 여부가 아직 확인되지 않은 경우 로딩 및 확인 시작
     if (league === null || isAlreadyRegistered === false) { // isAlreadyRegistered가 false인 경우 (확인 필요 상태)
-      setLoadingState('league'); // 리그 데이터 로딩 중
+      setLoadingState(States.LEAGUE); // 리그 데이터 로딩 중
       fetchLeagueData(leagueId, user.uid); // ★ 리그 데이터 로딩 및 기 등록 여부 확인 함수 호출
       return; // 로딩 완료 대기
     }
 
     // 모든 확인 완료 및 데이터 로드 완료
-    setLoadingState('idle'); // 페이지 로딩 완료
+    setLoadingState(States.IDLE); // 페이지 로딩 완료
 
 
     // Dependencies for the effect
@@ -115,7 +117,7 @@ const LeagueRegistrationPage = () => {
 
   // 해당 리그 데이터 로딩 및 사용자 기 등록 여부 확인 함수 통합
   const fetchLeagueData = async (id: string, userId: string) => {
-    setLoadingState('league'); // 로딩 상태 설정
+    setLoadingState(States.LEAGUE); // 로딩 상태 설정
     try {
       // 1. 리그 문서 가져오기
       const leagueDocRef = doc(db, 'leagues', id);
@@ -124,7 +126,7 @@ const LeagueRegistrationPage = () => {
       if (!leagueDocSnap.exists()) {
         console.warn(`League document not found for ID: ${id}.`);
         setLeague(null);
-        setLoadingState('error');
+        setLoadingState(States.ERROR);
         setErrorMessage("리그 정보를 불러오는데 실패했습니다.");
         // router.push('/league'); // 잘못된 리그 ID면 리다이렉트
         return; // 중단
@@ -134,8 +136,8 @@ const LeagueRegistrationPage = () => {
       const formattedLeagueData: League = {
         id: leagueDocSnap.id,
         name: data.name,
-        date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : undefined,
-        createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : undefined,
+        date: data.date,
+        createdAt: data.createdAt,
         bannerImageUrl: data.bannerImageUrl,
         description: data.description,
         // TODO: Add other fields
@@ -160,7 +162,7 @@ const LeagueRegistrationPage = () => {
       console.error("리그 데이터 또는 등록 여부 확인 실패:", error);
       setLeague(null); // 에러 발생 시 리그 데이터 초기화
       setIsAlreadyRegistered(false); // 에러 발생 시 등록 안 된 것으로 간주 (안전)
-      setLoadingState('error');
+      setLoadingState(States.ERROR);
       setErrorMessage("데이터를 불러오는데 실패했습니다.");
     } finally {
       // 로딩 상태 종료는 각 성공/실패 경로에서 명시적으로 설정
@@ -199,9 +201,9 @@ const LeagueRegistrationPage = () => {
   // 리그 등록 처리 핸들러
   const handleRegisterForLeague = async () => {
     // 모든 확인 완료 상태에서만 실행 (UI에서 버튼 비활성화로 제어)
-    if (!user || !league || isAlreadyRegistered || loadingState !== 'idle' || registrationProcessState !== 'idle') return;
+    if (!user || !league || isAlreadyRegistered || loadingState !== States.IDLE || registrationProcessState !== States.IDLE) return;
 
-    setRegistrationProcessState('submitting'); // 등록 처리 상태 변경
+    setRegistrationProcessState(States.SUBMITTING); // 등록 처리 상태 변경
     setRegistrationError(null); // 에러 초기화
 
     try {
@@ -219,7 +221,7 @@ const LeagueRegistrationPage = () => {
       const docRef = await addDoc(collection(db, 'registrations'), registrationData); // 문서 자동 ID 생성
 
       console.log("리그 등록 정보 Firestore 저장 성공:", docRef.id);
-      setRegistrationProcessState('success'); // 등록 성공 상태 변경
+      setRegistrationProcessState(States.SUCCESS); // 등록 성공 상태 변경
       // 등록 성공했으니 기 등록 상태를 true로 업데이트하여 버튼 비활성화
       setIsAlreadyRegistered(true);
       // TODO: 사용자에게 등록 성공 메시지 표시 (Toast 등)
@@ -228,7 +230,7 @@ const LeagueRegistrationPage = () => {
 
     } catch (error: unknown) {
       console.error("리그 등록 Firestore 저장 실패:", error);
-      setRegistrationProcessState('error'); // 등록 실패 상태 변경
+      setRegistrationProcessState(States.ERROR); // 등록 실패 상태 변경
       if (error instanceof Error) {
         setRegistrationError(error.message);
       } else {
@@ -241,12 +243,12 @@ const LeagueRegistrationPage = () => {
   // --- UI 렌더링 ---
 
   // 페이지 로딩 상태에 따른 UI 표시
-  if (loadingState !== 'idle' || registrationProcessState === 'submitting') { // 등록 처리 중일 때도 로딩 표시
-    const loadingMessage = loadingState === 'auth' ? '인증 정보 로딩 중...'
-      : loadingState === 'profile' ? '프로필 정보 확인 중...'
-        : loadingState === 'league' ? '리그 데이터 로딩 중...'
-          : loadingState === 'registration_check' ? '등록 상태 확인 중...'
-            : registrationProcessState === 'submitting' ? '등록 처리 중...'
+  if (loadingState !== States.IDLE || registrationProcessState === States.SUBMITTING) { // 등록 처리 중일 때도 로딩 표시
+    const loadingMessage = loadingState === States.AUTH ? '인증 정보 로딩 중...'
+      : loadingState === States.PROFILE ? '프로필 정보 확인 중...'
+        : loadingState === States.LEAGUE ? '리그 데이터 로딩 중...'
+          : loadingState === States.REGISTRATION_CHECK ? '등록 상태 확인 중...'
+            : registrationProcessState === States.SUBMITTING ? '등록 처리 중...'
               : '로딩 중...'; // Fallback
 
     return (
@@ -258,19 +260,19 @@ const LeagueRegistrationPage = () => {
   }
 
   // 로딩 완료 후 에러 상태 처리
-  if (loadingState === 'error') {
-    return (
-      <div className="flex flex-col justify-center items-center min-h-screen text-red-600">
-        <h1 className="text-2xl font-bold">오류 발생</h1>
-        <p className="mt-4">{errorMessage || "페이지를 불러오는데 실패했습니다."}</p>
-        {/* TODO: 에러 상세 정보 표시 또는 재시도 버튼 */}
-        <Link href="/league" className="mt-6 text-blue-600 hover:underline">리그 일정 목록으로 돌아가기</Link>
-      </div>
-    );
-  }
+  // if (loadingState === States.ERROR) {
+  //   return (
+  //     <div className="flex flex-col justify-center items-center min-h-screen text-red-600">
+  //       <h1 className="text-2xl font-bold">오류 발생</h1>
+  //       <p className="mt-4">{errorMessage || "페이지를 불러오는데 실패했습니다."}</p>
+  //       {/* TODO: 에러 상세 정보 표시 또는 재시도 버튼 */}
+  //       <Link href="/league" className="mt-6 text-blue-600 hover:underline">리그 일정 목록으로 돌아가기</Link>
+  //     </div>
+  //   );
+  // }
 
   // 리그 데이터가 없는 경우 (잘못된 leagueId 또는 삭제된 리그)
-  if (!league && loadingState === 'idle') { // 로딩 중이 아닐 때 리그 데이터가 없으면 오류
+  if (!league && loadingState === States.IDLE) { // 로딩 중이 아닐 때 리그 데이터가 없으면 오류
     return (
       <div className="flex flex-col justify-center items-center min-h-screen">
         <h1 className="text-2xl font-bold text-red-600">오류: 리그 정보를 찾을 수 없습니다.</h1>
@@ -320,24 +322,26 @@ const LeagueRegistrationPage = () => {
         {isAlreadyRegistered ? ( // 이미 등록된 경우 메시지 표시
           <p className="text-yellow-600 font-semibold">이미 이 리그에 등록하셨습니다.</p>
         ) : ( // 등록되지 않은 경우 버튼 표시 또는 처리 상태 메시지 표시
-          registrationProcessState === 'idle' ? ( // 등록 처리 전 상태
-            <button
-              onClick={handleRegisterForLeague} // 버튼 클릭 시 등록 함수 호출
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              // 버튼은 user, league가 있고, profile complete이고, 기 등록 안됐고, 등록 처리 중이 아닐 때 활성화
-              disabled={!user || !league || !isProfileComplete || isAlreadyRegistered || registrationProcessState !== 'idle'}
-            >
-              리그 등록 신청
-            </button>
-          ) : ( // 등록 처리 중 또는 결과 표시
-            registrationProcessState === 'submitting' ? (
-              <p className="text-blue-600">등록 처리 중...</p>
-            ) : registrationProcessState === 'success' ? (
-              <p className="text-green-600 font-semibold">등록 신청이 완료되었습니다!</p>
-            ) : ( // registrationProcessState === 'error'
-              <p className="text-red-600">등록 중 오류가 발생했습니다: {registrationError}</p>
+          registrationProcessState === States.IDLE ? ( // 등록 처리 전 상태
+              <button
+                onClick={handleRegisterForLeague} // 버튼 클릭 시 등록 함수 호출
+                className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                // 버튼은 user, league가 있고, profile complete이고, 기 등록 안됐고, 등록 처리 중이 아닐 때 활성화
+                disabled={!user || !league || !(userData?.name && userData?.dateOfBirth) || isAlreadyRegistered || registrationProcessState !== States.IDLE}
+              >
+                리그 등록 신청
+              </button>
             )
-          )
+            : ( // 등록 처리 중 또는 결과 표시
+              // registrationProcessState === States.SUBMITTING ? (
+              //   <p className="text-blue-600">등록 처리 중...</p>
+              // ) :
+                registrationProcessState === States.SUCCESS ? (
+                <p className="text-green-600 font-semibold">등록 신청이 완료되었습니다!</p>
+              ) : ( // registrationProcessState === States.ERROR
+                <p className="text-red-600">등록 중 오류가 발생했습니다: {registrationError}</p>
+              )
+            )
         )}
       </div>
 

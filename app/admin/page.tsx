@@ -29,7 +29,7 @@ interface League {
 // AdminDashboard 컴포넌트 (실제 /admin 페이지의 내용)
 const AdminDashboard = () => {
   // useAuth 훅을 사용하여 전역 인증 정보 가져오기
-  const { user, role, loading: authLoading, isAdmin } = useAuth(); // authLoading으로 이름 변경
+  const { user, userData, loading: authLoading, isAdmin } = useAuth(); // authLoading으로 이름 변경
   const router = useRouter();
 
   // 관리자 데이터 (리그 목록만)
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     // AuthProvider에서 로딩 중이 아니면서, 로딩 완료 후 user가 없거나 관리자가 아니면 리다이렉트
     if (!authLoading && (!user || !isAdmin)) {
-      console.warn(`User ${user?.uid} is not authorized for admin page. Role: ${role}. Redirecting to home.`);
+      console.warn(`User ${user?.uid} is not authorized for admin page. Role: ${userData?.role}. Redirecting to home.`);
       router.push('/'); // 관리자가 아니면 홈 페이지로 리다이렉트
     }
     // user, isAdmin, authLoading 상태가 변경될 때마다 이 훅 실행

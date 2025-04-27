@@ -8,10 +8,9 @@ import { doc, getDoc, updateDoc, DocumentSnapshot } from 'firebase/firestore'; /
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // Storage functions
 import { db, storage } from '@/firebase/config'; // db, storage import
 import { TailSpin } from 'react-loader-spinner'; // Loading spinner
-import Link from 'next/link'; // Link
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
-import { UserData } from '@/types';
+import { UserData } from '@/types/firebase';
 
 
 const CompleteProfilePage = () => {
@@ -137,7 +136,7 @@ const CompleteProfilePage = () => {
 
 
       // UI 상태 업데이트
-      setProfileData({ ...profileData, profilePictureUrl: null }); // 폼 상태에서 이미지 URL 제거
+      setProfileData({ ...profileData, profilePictureUrl: undefined }); // 폼 상태에서 이미지 URL 제거
       setProfilePictureFile(null); // 선택된 파일도 초기화
       // Context의 initialUserData도 업데이트 (Auth Context에서 다시 불러오거나 수동 업데이트)
       // useAuth() 훅의 userData 상태를 수동으로 업데이트하는 로직 추가 필요 (Context 구현에 따라 다름)

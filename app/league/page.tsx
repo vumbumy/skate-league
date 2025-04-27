@@ -5,11 +5,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { collection, getDocs } from 'firebase/firestore'; // Firestore 데이터 가져오기 함수
 import { db } from '@/firebase/config'; // db import
-import { TailSpin } from 'react-loader-spinner'; // 로딩 스피너
-
-// 필요한 인터페이스 import (types/index.ts 파일에서 import)
-import { League } from '@/types';
-
+import { TailSpin } from 'react-loader-spinner';
+import {League} from "@/types/firebase"; // 로딩 스피너
 
 const LeagueSchedulePage = () => {
   const [leagues, setLeagues] = useState<League[]>([]); // 리그 데이터 상태

@@ -1,22 +1,31 @@
 // app/admin/leagues/[leagueId]/page.tsx
 "use client"; // 클라이언트 컴포넌트임을 명시
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import {useEffect, useState} from 'react';
+import {useParams, useRouter} from 'next/navigation';
 // useAuth 훅은 context/AuthContext에서 가져옵니다.
-import { useAuth } from '@/context/AuthContext';
+import {useAuth} from '@/context/AuthContext';
 // Firebase 및 Firestore 관련 함수들
-import { doc, getDoc, updateDoc, collection, getDocs, DocumentSnapshot, query, where } from 'firebase/firestore'; // 필요한 함수 import
+import {
+  collection,
+  doc,
+  DocumentSnapshot,
+  getDoc,
+  getDocs,
+  query,
+  QuerySnapshot,
+  updateDoc,
+  where
+} from 'firebase/firestore'; // 필요한 함수 import
 // Firebase Storage (배너 이미지 업로드 시 필요)
-import { storage } from '@/firebase/config'; // config 파일에 storage 초기화 추가 필요
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // deleteObject는 이미지 삭제 시 필요
-import { db } from '@/firebase/config'; // db import 유지
+import {db, storage} from '@/firebase/config'; // db import 유지 // config 파일에 storage 초기화 추가 필요
+import {deleteObject, getDownloadURL, ref, uploadBytes} from 'firebase/storage'; // deleteObject는 이미지 삭제 시 필요
 // 로딩 스피너
-import { TailSpin } from 'react-loader-spinner';
-import Link from 'next/link'; // 링크 이동을 위해 Link 컴포넌트 import
+import {TailSpin} from 'react-loader-spinner';
+import Link from 'next/link';
+import {League, UserData} from "@/types/firebase"; // 링크 이동을 위해 Link 컴포넌트 import
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
-import { League, UserData } from '@/types';
 
 
 // 리그 등록 정보 인터페이스 (Firestore 'registrations' 컬렉션에 저장된 데이터 구조)
@@ -41,7 +50,7 @@ interface LeagueSkater {
 
 const LeagueDetailPage = () => {
   // useAuth 훅을 사용하여 전역 인증 정보 가져오기
-  const { user, role, loading: authLoading, isAdmin } = useAuth();
+  const {user, userData, loading: authLoading, isAdmin} = useAuth();
   const router = useRouter();
   const params = useParams();
   const leagueId = params.leagueId as string; // [leagueId] 값을 string으로 가져옴
@@ -62,7 +71,7 @@ const LeagueDetailPage = () => {
   useEffect(() => {
     // AuthProvider 로딩 중이 아니면서 user가 없거나 관리자가 아니면 리다이렉트
     if (!authLoading && (!user || !isAdmin)) {
-      console.warn(`User ${user?.uid} is not authorized for admin leagues page. Role: ${role}. Redirecting to home.`);
+      console.warn(`User ${user?.uid} is not authorized for admin leagues page. Role: ${userData?.role}. Redirecting to home.`);
       router.push('/'); // 관리자가 아니면 홈 페이지로 리다이렉트
     } else if (!authLoading && user && isAdmin) {
       // 인증 로딩이 끝났고 관리자로 확인되면 데이터 로딩 시작
@@ -93,8 +102,8 @@ const LeagueDetailPage = () => {
           id: leagueDocSnap.id,
           name: data.name,
           // Firestore Timestamp를 Date 객체로 변환, 없으면 undefined
-          date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : undefined,
-          createdAt: data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : undefined,
+          date: data.date,
+          createdAt: data.createdAt,
           bannerImageUrl: data.bannerImageUrl,
           description: data.description,
           // TODO: 필요한 다른 필드 매핑
@@ -114,7 +123,9 @@ const LeagueDetailPage = () => {
         const registrationsSnapshot: QuerySnapshot<RegistrationData> = await getDocs(registrationsQuery) as QuerySnapshot<RegistrationData>; // 타입 단언
 
         const registeredUserIds: string[] = [];
-        const registrationDetails: { [userId: string]: { registrationId: string, status: 'pending' | 'approved' | 'rejected' } } = {};
+        const registrationDetails: {
+          [userId: string]: { registrationId: string, status: 'pending' | 'approved' | 'rejected' }
+        } = {};
 
         registrationsSnapshot.forEach(regDoc => {
           const regData = regDoc.data();
@@ -190,12 +201,12 @@ const LeagueDetailPage = () => {
 
   // 수정 폼 입력 변경 핸들러 (간단한 내용 필드 핸들링 포함)
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => { // TextAreaElement 타입 추가
-    const { name, value } = e.target;
+    const {name, value} = e.target;
     // 날짜 입력 필드의 경우 Date 객체로 변환하여 저장할 수 있습니다.
     if (name === 'date') {
-      setEditFormData({ ...editFormData, [name]: value ? new Date(value) : '' }); // input value (string) -> Date 객체 또는 빈 문자열
+      setEditFormData({...editFormData, date: value ? new Date(value) : undefined}); // input value (string) -> Date 객체 또는 빈 문자열
     } else {
-      setEditFormData({ ...editFormData, [name]: value });
+      setEditFormData({...editFormData, [name]: value});
     }
   };
 
@@ -209,31 +220,31 @@ const LeagueDetailPage = () => {
   };
 
   // 기존 배너 이미지 삭제 핸들러 (선택 사항)
-  // const handleDeleteBannerImage = async () => {
-  //   if (!user || !isAdmin || !leagueId || !league?.bannerImageUrl) return;
-  //   setPageLoading(true);
-  //   try {
-  //     // Storage에서 이미지 삭제 로직
-  //     const imageRef = ref(storage, league.bannerImageUrl);
-  //     await deleteObject(imageRef);
-  //
-  //     // Firestore에서 이미지 URL 필드 제거 로직
-  //     const leagueDocRef = doc(db, 'leagues', leagueId);
-  //     // import { deleteField } from 'firebase/firestore'; 필요
-  //     // await updateDoc(leagueDocRef, { bannerImageUrl: deleteField() });
-  //
-  //     console.log("Banner image deleted.");
-  //     // UI 상태 업데이트 및 데이터 새로고침
-  //     setEditFormData({ ...editFormData, bannerImageUrl: undefined }); // 폼 상태에서 이미지 URL 제거
-  //     setLeague({ ...league, bannerImageUrl: undefined }); // 리그 상태에서도 이미지 URL 제거
-  //     // fetchLeagueData(leagueId); // 데이터 새로고침 (필요시)
-  //   } catch (error: unknown) {
-  //     console.error("Failed to delete banner image:", error);
-  //     // TODO: 에러 처리
-  //   } finally {
-  //     setPageLoading(false);
-  //   }
-  // };
+  const handleDeleteBannerImage = async () => {
+    if (!user || !isAdmin || !leagueId || !league?.bannerImageUrl) return;
+    setPageLoading(true);
+    try {
+      // Storage에서 이미지 삭제 로직
+      const imageRef = ref(storage, league.bannerImageUrl);
+      await deleteObject(imageRef);
+
+      // Firestore에서 이미지 URL 필드 제거 로직
+      const leagueDocRef = doc(db, 'leagues', leagueId);
+      // import { deleteField } from 'firebase/firestore'; 필요
+      // await updateDoc(leagueDocRef, { bannerImageUrl: deleteField() });
+
+      console.log("Banner image deleted.");
+      // UI 상태 업데이트 및 데이터 새로고침
+      setEditFormData({...editFormData, bannerImageUrl: undefined}); // 폼 상태에서 이미지 URL 제거
+      setLeague({...league, bannerImageUrl: undefined}); // 리그 상태에서도 이미지 URL 제거
+      // fetchLeagueData(leagueId); // 데이터 새로고침 (필요시)
+    } catch (error: unknown) {
+      console.error("Failed to delete banner image:", error);
+      // TODO: 에러 처리
+    } finally {
+      setPageLoading(false);
+    }
+  };
 
 
   // 리그 정보 업데이트 핸들러 (배너 이미지 업로드 로직 포함)
@@ -254,17 +265,15 @@ const LeagueDetailPage = () => {
         description: editFormData.description, // 설명 필드
 
         // date 필드 처리: Date 객체이거나 string이면 Date 객체로 변환 후 null 또는 Timestamp 변환
-        date: editFormData.date instanceof Date
-          ? editFormData.date // 이미 Date 객체이면 그대로 사용 (Firestore가 Timestamp로 변환)
-          : (editFormData.date // string 이면 Date 객체로 변환
-            ? new Date(editFormData.date)
-            : null), // 값이 없으면 null로 저장 (Firestore는 null 허용)
+        date: editFormData.date
+          ? new Date(editFormData.date)
+          : undefined, // 값이 없으면 null로 저장 (Firestore는 null 허용)
 
         // bannerImageUrl 필드:
         // 새로 선택된 파일이 없거나, 명시적으로 null로 설정한 경우 (이미지 삭제 시) 처리
         // bannerImageFile이 있으면 아래 업로드 로직에서 덮어씁니다.
         // editFormData.bannerImageUrl가 undefined이면 null로 저장, 아니면 값 그대로
-        bannerImageUrl: editFormData.bannerImageUrl === undefined ? null : editFormData.bannerImageUrl,
+        bannerImageUrl: editFormData?.bannerImageUrl,
 
         // TODO: 필요한 다른 업데이트 필드 추가 (editFormData에서 가져옴)
       };
@@ -326,7 +335,7 @@ const LeagueDetailPage = () => {
   if (authLoading || !user || !isAdmin) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen">
-        <TailSpin color="#00BFFF" height={80} width={80} />
+        <TailSpin color="#00BFFF" height={80} width={80}/>
         <p className="mt-4 text-gray-600">{authLoading ? '인증 정보 로딩 중...' : '관리자 권한 확인 중...'}</p>
       </div>
     );
@@ -336,7 +345,7 @@ const LeagueDetailPage = () => {
   if (pageLoading) {
     return (
       <div className="flex flex-col justify-center items-center min-h-screen">
-        <TailSpin color="#00BFFF" height={80} width={80} />
+        <TailSpin color="#00BFFF" height={80} width={80}/>
         <p className="mt-4 text-gray-600">리그 데이터 로딩 중...</p>
       </div>
     );
@@ -392,7 +401,8 @@ const LeagueDetailPage = () => {
             {league.bannerImageUrl && (
               <div className="mt-4">
                 <strong>배너 이미지:</strong>
-                <img src={league.bannerImageUrl} alt={`${league.name} 배너`} className="mt-2 max-h-40 object-cover rounded"/>
+                <img src={league.bannerImageUrl} alt={`${league.name} 배너`}
+                     className="mt-2 max-h-40 object-cover rounded"/>
               </div>
             )}
             {/* TODO: 필요한 다른 정보 표시 */}
@@ -447,7 +457,8 @@ const LeagueDetailPage = () => {
                   {bannerImageFile ? (
                     <p>선택된 파일: {bannerImageFile.name}</p>
                   ) : (
-                    <p>현재 이미지: <a href={editFormData.bannerImageUrl} target="_blank" rel="noopener noreferrer" className="underline">보기</a></p>
+                    <p>현재 이미지: <a href={editFormData.bannerImageUrl} target="_blank" rel="noopener noreferrer"
+                                  className="underline">보기</a></p>
                   )}
                   {/* TODO: 이미지 제거 버튼 (handleDeleteBannerImage 함수와 연결) */}
                   {/* {editFormData.bannerImageUrl && !bannerImageFile && (
