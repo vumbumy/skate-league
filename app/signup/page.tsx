@@ -57,7 +57,7 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-200">
+    <div className="flex justify-center items-center min-h-screen">
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm">
         <h1 className="text-2xl font-bold mb-6 text-center">회원가입</h1>
         <form onSubmit={handleSignup}>

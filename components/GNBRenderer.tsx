@@ -39,22 +39,7 @@ const GnbRenderer = () => {
     isAdminArea ?
       <nav className="bg-blue-800 p-4 text-white w-full">
         <div className="container mx-auto flex justify-between items-center">
-          <div className="font-bold text-lg">스케이터 리그 관리</div>
-          <div>
-            {/* TODO: 관리자 메뉴 항목 (Link 컴포넌트 사용 권장) */}
-            <Link href="/admin" className="mr-4 hover:underline">대시보드</Link>
-            <Link href="/admin/leagues" className="mr-4 hover:underline">리그 관리</Link>
-            <Link href="/admin/skaters" className="hover:underline">스케이터 관리</Link>
-            {/* TODO: 로그아웃 버튼 로직 추가 (useAuth 훅 사용) */}
-            {/*
-               import { useAuth } from '@/context/AuthContext';
-               import { signOut } from 'firebase/auth';
-               import { auth } from '@/firebase/config';
-               const { user } = useAuth();
-               const handleLogout = async () => { try { await signOut(auth); } catch (e) { console.error(e); } };
-               {user && <button onClick={handleLogout}>로그아웃</button>}
-               */}
-          </div>
+          <Link href="/admin" className="font-bold text-lg">스케이터 리그 관리</Link>
         </div>
       </nav> :
       <nav className="bg-black p-4 text-white w-full">
@@ -68,8 +53,8 @@ const GnbRenderer = () => {
         >
           <Link href="/">홈</Link>
           <Link href="/league">리그 일정</Link>
-          <Link href="/results">경기 결과</Link>
-          <Link href="/more">더보기</Link>
+          {/*<Link href="/results">경기 결과</Link>*/}
+          {/*<Link href="/more">더보기</Link>*/}
         </div>
       </nav>
   }

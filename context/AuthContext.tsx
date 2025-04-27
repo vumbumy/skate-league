@@ -5,11 +5,12 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/firebase/config'; // Firebase 초기화 파일 경로 (경로 확인 필요)
-import { TailSpin } from 'react-loader-spinner'; // 로딩 스피너 (설치 필요)
+import { TailSpin } from 'react-loader-spinner';
+import {UserData} from "@/types/firebase"; // 로딩 스피너 (설치 필요)
 
 interface AuthContextType {
   user: User | null;
-  role: string | null; // Firestore에서 가져온 사용자 역할 ('user', 'admin' 등)
+  userData: UserData | null; // ★ 이 라인이 있는지 확인
   loading: boolean; // 초기 인증 상태 확인 중인지 여부
   isAdmin: boolean; // 관리자 여부 편의 속성
 }
@@ -17,7 +18,7 @@ interface AuthContextType {
 // Context 생성 (기본값은 초기 상태)
 const AuthContext = createContext<AuthContextType>({
   user: null,
-  role: null,
+  userData: null,
   loading: true,
   isAdmin: false,
 });
@@ -29,7 +30,8 @@ interface AuthProviderProps {
 // Context Provider 컴포넌트
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null);
-  const [role, setRole] = useState<string | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null); // 이 상태도 선언되어 있어야 합니다.
+  // const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -45,16 +47,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           const userDocSnap = await getDoc(userDocRef);
 
           if (userDocSnap.exists()) {
-            const userData = userDocSnap.data();
-            setRole(userData?.role || null); // 역할 필드가 없으면 null
+            setUserData(userDocSnap.data() as UserData); // 역할 필드가 없으면 null
           } else {
             // Firestore에 사용자 문서가 없는 경우 (가입 절차 미완료 등)
             console.warn(`User document not found for UID: ${currentUser.uid}`);
-            setRole(null); // 역할 없으면 null
+            setUserData(null); // 역할 없으면 null
           }
         } catch (error) {
           console.error("Firestore에서 사용자 역할 확인 실패:", error);
-          setRole(null); // 에러 발생 시 역할 null
+          setUserData(null); // 에러 발생 시 역할 null
         } finally {
           setLoading(false); // 역할 확인까지 완료 후 로딩 종료
         }
@@ -62,7 +63,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       } else {
         // 사용자가 로그아웃됨 또는 로그인되지 않음
         setUser(null);
-        setRole(null);
+        setUserData(null);
         setLoading(false); // 로딩 종료
       }
     });
@@ -72,12 +73,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []); // 빈 배열: 컴포넌트가 마운트될 때 딱 한 번만 실행
 
   // isAdmin 편의 속성 계산
-  const isAdmin = role === 'admin';
+  const isAdmin = userData?.role === 'admin';
 
   // Context 값
   const contextValue: AuthContextType = {
     user,
-    role,
+    userData,
     loading,
     isAdmin,
   };
