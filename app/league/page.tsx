@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { collection, getDocs } from 'firebase/firestore'; // Firestore 데이터 가져오기 함수
 import { db } from '@/firebase/config'; // db import
 import { TailSpin } from 'react-loader-spinner';
-import {League} from "@/types/firebase"; // 로딩 스피너
+import {League} from "@/types/firebase";
+import {toDateOrUndefined} from "@/lib/utils"; // 로딩 스피너
 
 const LeagueSchedulePage = () => {
   const [leagues, setLeagues] = useState<League[]>([]); // 리그 데이터 상태
@@ -26,7 +27,7 @@ const LeagueSchedulePage = () => {
           return {
             id: doc.id,
             name: data.name,
-            date: data.date && typeof data.date.toDate === 'function' ? data.date.toDate() : undefined,
+            date: toDateOrUndefined(data.date),
             bannerImageUrl: data.bannerImageUrl, // 배너 이미지 URL 로딩
             // TODO: 필요한 다른 필드 매핑
           } as League;

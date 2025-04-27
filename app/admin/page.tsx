@@ -11,7 +11,8 @@ import { signOut } from 'firebase/auth'; // 로그아웃 함수 필요시 사용
 import { auth, db } from '@/firebase/config'; // auth, db import 유지
 // 로딩 스피너
 import { TailSpin } from 'react-loader-spinner';
-import Link from 'next/link'; // 링크 이동을 위해 Link 컴포넌트 import
+import Link from 'next/link';
+import {toDateOrUndefined} from "@/lib/utils"; // 링크 이동을 위해 Link 컴포넌트 import
 
 // 필요한 인터페이스 import 또는 정의 (types/index.ts 파일에 정의되어 있어야 합니다)
 // import { League, Skater, UserData } from '@/types'; // Skater, UserData는 이 파일에서 직접 사용 안 함
@@ -74,8 +75,8 @@ const AdminDashboard = () => {
           id: doc.id,
           name: data.name,
           // Firestore Timestamp를 Date 객체로 변환, 없으면 undefined
-          date: data.date?.toDate ? data.date.toDate() : undefined,
-          createdAt: data.createdAt?.toDate ? data.createdAt.toDate() : undefined,
+          date: toDateOrUndefined(data.date),
+          createdAt: toDateOrUndefined(data.createdAt),
           // TODO: 필요한 다른 필드 매핑
         } as League; // League 타입으로 단언
       });

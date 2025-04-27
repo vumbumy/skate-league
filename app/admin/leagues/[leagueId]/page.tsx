@@ -23,7 +23,8 @@ import {deleteObject, getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 // 로딩 스피너
 import {TailSpin} from 'react-loader-spinner';
 import Link from 'next/link';
-import {League, UserData} from "@/types/firebase"; // 링크 이동을 위해 Link 컴포넌트 import
+import {League, UserData} from "@/types/firebase";
+import {toDateOrUndefined} from "@/lib/utils"; // 링크 이동을 위해 Link 컴포넌트 import
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
 
@@ -102,12 +103,13 @@ const LeagueDetailPage = () => {
           id: leagueDocSnap.id,
           name: data.name,
           // Firestore Timestamp를 Date 객체로 변환, 없으면 undefined
-          date: data.date,
-          createdAt: data.createdAt,
+          date: toDateOrUndefined(data.date),
+          createdAt: toDateOrUndefined(data.createdAt),
           bannerImageUrl: data.bannerImageUrl,
           description: data.description,
           // TODO: 필요한 다른 필드 매핑
         };
+
         setLeague(formattedLeagueData);
         // 수정 폼 초기값 설정 시 date는 YYYY-MM-DD 형식의 문자열로 저장
         setEditFormData({
@@ -265,9 +267,7 @@ const LeagueDetailPage = () => {
         description: editFormData.description, // 설명 필드
 
         // date 필드 처리: Date 객체이거나 string이면 Date 객체로 변환 후 null 또는 Timestamp 변환
-        date: editFormData.date
-          ? new Date(editFormData.date)
-          : undefined, // 값이 없으면 null로 저장 (Firestore는 null 허용)
+        date: toDateOrUndefined(editFormData.date),
 
         // bannerImageUrl 필드:
         // 새로 선택된 파일이 없거나, 명시적으로 null로 설정한 경우 (이미지 삭제 시) 처리

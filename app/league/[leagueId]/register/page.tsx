@@ -12,7 +12,8 @@ import {db} from '@/firebase/config'; // db import 유지
 import {TailSpin} from 'react-loader-spinner';
 import Link from 'next/link';
 import {League} from "@/types/firebase";
-import {State, States} from "@/types"; // 링크 이동을 위해 Link 컴포넌트 import
+import {State, States} from "@/types";
+import {toDateOrUndefined} from "@/lib/utils"; // 링크 이동을 위해 Link 컴포넌트 import
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
 // import { League, UserData } from '@/types'; // Assuming these are in '@/types'
@@ -136,8 +137,8 @@ const LeagueRegistrationPage = () => {
       const formattedLeagueData: League = {
         id: leagueDocSnap.id,
         name: data.name,
-        date: data.date,
-        createdAt: data.createdAt,
+        date: toDateOrUndefined(data.date),
+        createdAt: toDateOrUndefined(data.createdAt),
         bannerImageUrl: data.bannerImageUrl,
         description: data.description,
         // TODO: Add other fields
