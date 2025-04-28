@@ -6,6 +6,7 @@ interface League {
   id: string; // Firestore 문서 ID
   name: string;
   date?: Date; // Firestore Timestamp
+  location?: String;
   createdAt?: Date; // Firestore Timestamp
   bannerImageUrl?: string;
   description?: string;

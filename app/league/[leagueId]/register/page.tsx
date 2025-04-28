@@ -136,6 +136,7 @@ const LeagueRegistrationPage = () => {
       const formattedLeagueData: League = {
         id: leagueDocSnap.id,
         name: data.name,
+        location: data.location,
         date: toDateOrUndefined(data.date),
         createdAt: toDateOrUndefined(data.createdAt),
         bannerImageUrl: data.bannerImageUrl,
@@ -294,13 +295,14 @@ const LeagueRegistrationPage = () => {
       <div className="mb-8 bg-white p-6 rounded shadow">
         <h2 className="text-2xl font-semibold mb-4">리그 상세 정보</h2>
         <p><strong>날짜:</strong> {league?.date ? league.date.toLocaleDateString() : '미지정'}</p>
+        <p><strong>장소:</strong> {league?.location || '미정'}</p>
         <p><strong>설명:</strong> {league?.description || '설명 없음'}</p>
-        {league?.bannerImageUrl && (
-          <div className="mt-4">
-            <strong>배너 이미지:</strong>
-            <img src={league.bannerImageUrl} alt={`${league.name} 배너`} className="mt-2 max-h-40 object-cover rounded"/>
-          </div>
-        )}
+        {/*{league?.bannerImageUrl && (*/}
+        {/*  <div className="mt-4">*/}
+        {/*    <strong>배너 이미지:</strong>*/}
+        {/*    <img src={league.bannerImageUrl} alt={`${league.name} 배너`} className="mt-2 max-h-40 object-cover rounded"/>*/}
+        {/*  </div>*/}
+        {/*)}*/}
         {/* TODO: 필요한 다른 정보 표시 */}
       </div>
 

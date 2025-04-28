@@ -1,11 +1,11 @@
 // app/league/page.tsx
 "use client"; // 클라이언트 컴포넌트임을 명시
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState} from 'react';
 import Link from 'next/link';
-import { collection, getDocs } from 'firebase/firestore'; // Firestore 데이터 가져오기 함수
-import { db } from '@/firebase/config'; // db import
-import { TailSpin } from 'react-loader-spinner';
+import {collection, getDocs} from 'firebase/firestore'; // Firestore 데이터 가져오기 함수
+import {db} from '@/firebase/config'; // db import
+import {TailSpin} from 'react-loader-spinner';
 import {League} from "@/types/firebase";
 import {toDateOrUndefined} from "@/lib/utils"; // 로딩 스피너
 
@@ -27,6 +27,7 @@ const LeagueSchedulePage = () => {
           return {
             id: doc.id,
             name: data.name,
+            location: data.location,
             date: toDateOrUndefined(data.date),
             bannerImageUrl: data.bannerImageUrl, // 배너 이미지 URL 로딩
             // TODO: 필요한 다른 필드 매핑
@@ -53,7 +54,7 @@ const LeagueSchedulePage = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <TailSpin color="#00BFFF" height={80} width={80} />
+        <TailSpin color="#00BFFF" height={80} width={80}/>
       </div>
     );
   }
@@ -79,18 +80,21 @@ const LeagueSchedulePage = () => {
               {/* 배너 이미지 (있을 경우) */}
               {league.bannerImageUrl && (
                 <div className="mb-4">
-                  <img src={league.bannerImageUrl} alt={`${league.name} 배너`} className="w-full h-48 object-cover rounded-md"/> {/* 적절한 크기/스타일 적용 */}
+                  <img src={league.bannerImageUrl} alt={`${league.name} 배너`}
+                       className="w-full h-48 object-cover rounded-md"/> {/* 적절한 크기/스타일 적용 */}
                 </div>
               )}
               <h2 className="text-2xl font-semibold mb-2">{league.name}</h2>
-              <p className="text-gray-600 mb-4">날짜: {league.date ? league.date.toLocaleDateString() : '미정'}</p>
+              <p className="text-gray-600 ">날짜: {league.date ? league.date.toLocaleDateString() : '미정'}</p>
+              <p className="text-gray-600 mb-4">장소: {league.location || '미정'}</p>
               {/* TODO: 리그 장소, 설명 등 추가 정보 표시 */}
               {/* <p>{league.description}</p> */}
 
 
               {/* ★ 등록 페이지로 이동하는 링크 추가 */}
               {/* /league/[leagueId]/register 경로로 이동 */}
-              <Link href={`/league/${league.id}/register`} className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
+              <Link href={`/league/${league.id}/register`}
+                    className="inline-block bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4">
                 등록 신청
               </Link>
 

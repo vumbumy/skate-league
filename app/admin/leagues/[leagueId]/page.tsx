@@ -102,6 +102,7 @@ const LeagueDetailPage = () => {
         const formattedLeagueData: League = {
           id: leagueDocSnap.id,
           name: data.name,
+          location: data.location,
           // Firestore Timestamp를 Date 객체로 변환, 없으면 undefined
           date: toDateOrUndefined(data.date),
           createdAt: toDateOrUndefined(data.createdAt),
@@ -265,6 +266,7 @@ const LeagueDetailPage = () => {
       const dataToUpdate: Partial<Omit<League, 'id' | 'createdAt'>> = {
         name: editFormData.name, // 이름 필드
         description: editFormData.description, // 설명 필드
+        location: editFormData.location, // 설명 필드
 
         // date 필드 처리: Date 객체이거나 string이면 Date 객체로 변환 후 null 또는 Timestamp 변환
         date: toDateOrUndefined(editFormData.date),
@@ -395,6 +397,7 @@ const LeagueDetailPage = () => {
             <p><strong>ID:</strong> {league.id}</p>
             <p><strong>이름:</strong> {league.name}</p>
             <p><strong>날짜:</strong> {league.date ? league.date.toLocaleDateString() : '미지정'}</p>
+            <p><strong>장소:</strong> {league.location}</p>
             {/* 간단한 내용 표시 */}
             <p><strong>설명:</strong> {league.description || '설명 없음'}</p>
             {/* 배너 이미지 표시 */}
@@ -436,6 +439,20 @@ const LeagueDetailPage = () => {
                 // Date 객체를 ISO 날짜 형식으로 변환하여 input type="date"에 설정 (string 형식)
                 value={editFormData.date instanceof Date ? editFormData.date.toISOString().split('T')[0] : (editFormData.date || '')}
                 onChange={handleInputChange}
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+                장소
+              </label>
+              <input
+                type="text"
+                id="location"
+                name="location"
+                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                value={editFormData.location || ''}
+                onChange={handleInputChange}
+                required
               />
             </div>
             {/* 배너 이미지 파일 업로드 필드 */}
