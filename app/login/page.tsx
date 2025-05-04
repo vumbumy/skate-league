@@ -1,10 +1,10 @@
 // app/login/page.tsx
 "use client";
 
-import { useState } from 'react';
-import { auth } from '@/firebase/config'; // Firebase 초기화 파일 (경로 확인 필요)
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { useRouter } from 'next/navigation';
+import {useState} from 'react';
+import {auth} from '@/firebase/config'; // Firebase 초기화 파일 (경로 확인 필요)
+import {signInWithEmailAndPassword} from 'firebase/auth';
+import {useRouter} from 'next/navigation';
 import Link from "next/link";
 // TODO: 관리자인지 아닌지 판단하는 추가 로직 필요 (예: Firestore에서 사용자 정보 조회)
 
@@ -78,7 +78,8 @@ const LoginPage = () => {
         </form>
         {/* ★ 가입 페이지로 이동하는 링크 추가 */}
         <div className="text-center mt-4">
-          <Link href="/signup" className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
+          <Link href="/signup"
+                className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">
             계정이 없으신가요? 가입하기
           </Link>
         </div>

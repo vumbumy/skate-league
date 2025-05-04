@@ -30,7 +30,6 @@ const eslintConfig = [
   eslintPluginPrettierRecommended,
 
   // 필요하다면 추가적인 ESLint 규칙이나 설정을 여기에 추가
-
 ];
 
 export default eslintConfig;

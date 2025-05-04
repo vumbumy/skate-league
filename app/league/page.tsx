@@ -81,7 +81,7 @@ const LeagueSchedulePage = () => {
               {league.bannerImageUrl && (
                 <div className="mb-4">
                   <img src={league.bannerImageUrl} alt={`${league.name} 배너`}
-                       className="w-full h-48 object-cover rounded-md"/> {/* 적절한 크기/스타일 적용 */}
+                       className="w-full object-cover rounded-md"/> {/* 적절한 크기/스타일 적용 */}
                 </div>
               )}
               <h2 className="text-2xl font-semibold mb-2">{league.name}</h2>
