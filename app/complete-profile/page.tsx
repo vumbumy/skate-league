@@ -1,28 +1,34 @@
 // app/complete-profile/page.tsx
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation'; // useSearchParams import
-import { useAuth } from '@/context/AuthContext'; // useAuth hook
-import { doc, getDoc, updateDoc, DocumentSnapshot } from 'firebase/firestore'; // Firestore functions
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage'; // Storage functions
-import { db, storage } from '@/firebase/config'; // db, storage import
-import { TailSpin } from 'react-loader-spinner'; // Loading spinner
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation"; // useSearchParams import
+import { useAuth } from "@/context/AuthContext"; // useAuth hook
+import { doc, getDoc, updateDoc, DocumentSnapshot } from "firebase/firestore"; // Firestore functions
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  deleteObject,
+} from "firebase/storage"; // Storage functions
+import { db, storage } from "@/firebase/config"; // db, storage import
+import { TailSpin } from "react-loader-spinner"; // Loading spinner
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
-import { UserData } from '@/types/firebase';
-
+import { UserData } from "@/types/firebase";
 
 const CompleteProfilePage = () => {
   // useAuth hook provides user, authLoading, isAdmin, role, userData (initial load from AuthProvider)
   const { user, loading: authLoading, userData: initialUserData } = useAuth(); // initialUserData는 AuthProvider가 처음에 로드한 사용자 문서 데이터
   const router = useRouter();
   const searchParams = useSearchParams(); // URL 쿼리 파라미터 가져오기
-  const redirectLeagueId = searchParams.get('redirect'); // 'redirect' 쿼리 파라미터 값 (리그 ID)
+  const redirectLeagueId = searchParams.get("redirect"); // 'redirect' 쿼리 파라미터 값 (리그 ID)
 
   // 페이지 상태
   const [profileData, setProfileData] = useState<Partial<UserData>>({}); // 스케이터 정보 폼 데이터
-  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null); // 프로필 사진 파일
+  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
+    null,
+  ); // 프로필 사진 파일
   const [pageLoading, setPageLoading] = useState(true); // 페이지 전체 로딩 (인증 + 데이터 로딩)
   const [savingProfile, setSavingProfile] = useState(false); // 프로필 저장 중 로딩
   const [uploadingPicture, setUploadingPicture] = useState(false); // 프로필 사진 업로드 중 로딩
@@ -31,14 +37,14 @@ const CompleteProfilePage = () => {
   // Context에 로드된 초기 데이터 외에 새로 불러온 사용자 데이터 상태
   const [fetchedUserData, setFetchedUserData] = useState<UserData | null>(null);
 
-
   // 1. 인증 상태 확인 및 비로그인 시 리다이렉트
   useEffect(() => {
-    if (!authLoading) { // AuthProvider 로딩 완료 후
+    if (!authLoading) {
+      // AuthProvider 로딩 완료 후
       if (!user) {
         console.warn("User not authenticated. Redirecting to login page.");
         // 스케이터 정보 보완 페이지는 로그인 상태여야 하므로 로그인 페이지로 리다이렉트
-        router.push('/login'); // ★ 로그인 페이지 경로
+        router.push("/login"); // ★ 로그인 페이지 경로
       } else {
         // 로그인 상태이면 기존 프로필 데이터 가져오기
         fetchProfileData(user.uid);
@@ -47,14 +53,15 @@ const CompleteProfilePage = () => {
     // 이펙트 재실행 조건: user, authLoading 상태 변경 시
   }, [user, authLoading]); // router 제거
 
-
   // 2. 기존 프로필 데이터 가져오기 및 폼 초기화
   const fetchProfileData = async (userId: string) => {
     setPageLoading(true); // 페이지 로딩 시작 (데이터 로딩)
     setError(null); // 에러 초기화
     try {
-      const userDocRef = doc(db, 'users', userId);
-      const userDocSnap: DocumentSnapshot<UserData> = await getDoc(userDocRef) as DocumentSnapshot<UserData>;
+      const userDocRef = doc(db, "users", userId);
+      const userDocSnap: DocumentSnapshot<UserData> = (await getDoc(
+        userDocRef,
+      )) as DocumentSnapshot<UserData>;
 
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
@@ -62,9 +69,14 @@ const CompleteProfilePage = () => {
         // 폼 초기화: 가져온 데이터 또는 Context의 초기 데이터 사용 (Context 데이터가 더 최신일 수 있음)
         // AuthProvider가 항상 최신 데이터를 가져온다고 가정하고 initialUserData 사용
         setProfileData(initialUserData || userData); // Context 데이터 우선, 없으면 새로 가져온 데이터 사용
-        console.log("Existing user profile data loaded:", initialUserData || userData);
+        console.log(
+          "Existing user profile data loaded:",
+          initialUserData || userData,
+        );
       } else {
-        console.warn(`User document not found for UID: ${userId}. Starting with empty form.`);
+        console.warn(
+          `User document not found for UID: ${userId}. Starting with empty form.`,
+        );
         // 사용자 문서가 없으면 빈 폼으로 시작 (회원가입 후 바로 온 경우)
         setFetchedUserData(null);
         setProfileData({});
@@ -81,10 +93,12 @@ const CompleteProfilePage = () => {
   };
 
   // 폼 입력 변경 핸들러
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
     // 생년월일 필드는 Date 객체로 저장하거나 YYYY-MM-DD 문자열로 저장 (Firestore에 Date 객체 권장)
-    if (name === 'dateOfBirth') {
+    if (name === "dateOfBirth") {
       // input type="date"는 value가 YYYY-MM-DD 문자열입니다.
       setProfileData({ ...profileData, [name]: value }); // YYYY-MM-DD 문자열 그대로 저장 예시
       // Firestore에 Date 객체로 저장하려면 저장 시점에 new Date(value) 변환
@@ -95,7 +109,9 @@ const CompleteProfilePage = () => {
   };
 
   // 프로필 사진 파일 입력 변경 핸들러
-  const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProfilePictureChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     if (e.target.files && e.target.files[0]) {
       setProfilePictureFile(e.target.files[0]); // 선택된 파일 상태 저장
       // 파일 선택 시 기존 이미지 미리보기 URL 초기화 (선택 사항)
@@ -103,7 +119,10 @@ const CompleteProfilePage = () => {
     } else {
       setProfilePictureFile(null); // 파일 선택 취소 시
       // 파일 선택 취소 시 기존 이미지 URL을 다시 보여주려면 profileData.profilePictureUrl 복원 로직 필요
-      setProfileData({ ...profileData, profilePictureUrl: fetchedUserData?.profilePictureUrl }); // 데이터 다시 불러온 initialUserData 사용 가능
+      setProfileData({
+        ...profileData,
+        profilePictureUrl: fetchedUserData?.profilePictureUrl,
+      }); // 데이터 다시 불러온 initialUserData 사용 가능
     }
   };
 
@@ -126,14 +145,13 @@ const CompleteProfilePage = () => {
       }
 
       // Firestore에서 이미지 URL 필드 제거 로직
-      const userDocRef = doc(db, 'users', user.uid);
+      const userDocRef = doc(db, "users", user.uid);
       // import { deleteField } from 'firebase/firestore'; 필요
       // await updateDoc(userDocRef, { profilePictureUrl: deleteField() });
 
       // 필드 삭제 대신 null로 업데이트하여 명시적으로 필드 비우기
       await updateDoc(userDocRef, { profilePictureUrl: null });
       console.log("Profile picture URL field set to null in Firestore.");
-
 
       // UI 상태 업데이트
       setProfileData({ ...profileData, profilePictureUrl: undefined }); // 폼 상태에서 이미지 URL 제거
@@ -143,7 +161,6 @@ const CompleteProfilePage = () => {
 
       console.log("Profile picture deleted.");
       // TODO: 사용자에게 성공 메시지 표시
-
     } catch (error: unknown) {
       console.error("Failed to delete profile picture:", error);
       if (error instanceof Error) {
@@ -156,7 +173,6 @@ const CompleteProfilePage = () => {
       setSavingProfile(false); // 로딩 종료
     }
   };
-
 
   // 3. 스케이터 정보 저장 핸들러
   const handleSubmitProfile = async (e: React.FormEvent) => {
@@ -175,7 +191,10 @@ const CompleteProfilePage = () => {
         setUploadingPicture(true); // 업로드 로딩 시작
         // Storage 경로 설정 (예: `profile_pictures/{user.uid}/[timestamp]_[originalFileName]`)
         const fileName = `${Date.now()}_${profilePictureFile.name}`;
-        const storageRef = ref(storage, `profile_pictures/${user.uid}/${fileName}`);
+        const storageRef = ref(
+          storage,
+          `profile_pictures/${user.uid}/${fileName}`,
+        );
         const uploadResult = await uploadBytes(storageRef, profilePictureFile); // 파일 업로드
         profilePictureUrl = await getDownloadURL(uploadResult.ref); // 업로드된 이미지 URL 가져오기
         console.log("Profile picture uploaded. URL:", profilePictureUrl);
@@ -188,11 +207,12 @@ const CompleteProfilePage = () => {
       }
       // 만약 profilePictureFile이 null이고 profileData.profilePictureUrl에 값이 있다면, URL 변경 없음
 
-
-      const userDocRef = doc(db, 'users', user.uid);
+      const userDocRef = doc(db, "users", user.uid);
 
       // Firestore에 저장할 데이터 객체 (기존 데이터에 덮어쓰기)
-      const dataToSave: Partial<Omit<UserData, 'uid' | 'email' | 'createdAt' | 'role'>> = {
+      const dataToSave: Partial<
+        Omit<UserData, "uid" | "email" | "createdAt" | "role">
+      > = {
         ...profileData, // 현재 폼 상태의 데이터
         profilePictureUrl: profilePictureUrl, // 업로드된 URL 또는 기존 URL 또는 null
         // uid, email, createdAt, role 필드는 사용자가 변경할 수 없으므로 업데이트 데이터에 포함하지 않음
@@ -201,19 +221,22 @@ const CompleteProfilePage = () => {
 
       // Firestore에 저장할 최종 데이터에서 undefined 값 제거
       const finalDataToSave: { [key: string]: any } = {};
-      Object.keys(dataToSave).forEach(key => {
+      Object.keys(dataToSave).forEach((key) => {
         // dateOfBirth가 string일 경우 Date 객체로 변환하여 저장 (선택 사항)
-        if (key === 'dateOfBirth' && typeof dataToSave[key] === 'string' && dataToSave[key]) {
+        if (
+          key === "dateOfBirth" &&
+          typeof dataToSave[key] === "string" &&
+          dataToSave[key]
+        ) {
           finalDataToSave[key] = new Date(dataToSave[key] as string);
-        }
-        else {
+        } else {
           const value = dataToSave[key as keyof typeof dataToSave];
-          if (value !== undefined) { // undefined 값은 제외
+          if (value !== undefined) {
+            // undefined 값은 제외
             finalDataToSave[key] = value;
           }
         }
       });
-
 
       await updateDoc(userDocRef, finalDataToSave); // 사용자 문서 업데이트
 
@@ -229,9 +252,8 @@ const CompleteProfilePage = () => {
         router.push(`/league/${redirectLeagueId}/register`);
       } else {
         // 리다이렉트 정보가 없으면 기본 페이지로 이동 (예: 마이페이지, 홈)
-        router.push('/profile'); // 또는 '/' 등 마이페이지 경로
+        router.push("/profile"); // 또는 '/' 등 마이페이지 경로
       }
-
     } catch (error: unknown) {
       console.error("Failed to save user profile:", error);
       if (error instanceof Error) {
@@ -250,15 +272,30 @@ const CompleteProfilePage = () => {
   useEffect(() => {
     // AuthProvider에서 initialUserData 로드가 완료되고, 아직 폼 데이터가 설정되지 않았을 때
     // fetchedUserData 상태가 null이 아닐 때 (데이터 로딩이 완료되었을 때) 폼 초기화
-    if (!authLoading && user && fetchedUserData !== undefined && Object.keys(profileData).length === 0) {
+    if (
+      !authLoading &&
+      user &&
+      fetchedUserData !== undefined &&
+      Object.keys(profileData).length === 0
+    ) {
       // fetchedUserData가 null이 아니면 그 데이터로, null이면 빈 객체로 초기화
       setProfileData(fetchedUserData || {});
       console.log("Form initialized with fetchedUserData:", fetchedUserData);
-    } else if (!authLoading && user && fetchedUserData === undefined && Object.keys(profileData).length === 0) {
+    } else if (
+      !authLoading &&
+      user &&
+      fetchedUserData === undefined &&
+      Object.keys(profileData).length === 0
+    ) {
       // AuthProvider 로드 완료, user 있음, fetchedUserData 상태가 아직 설정 안된 경우 (데이터 fetch 대기)
       // 이 경우는 fetchProfileData가 pageLoading을 true로 설정하며 데이터를 가져올 것입니다.
       console.log("Waiting for profile data to be fetched.");
-    } else if (!authLoading && user && fetchedUserData === null && Object.keys(profileData).length === 0) {
+    } else if (
+      !authLoading &&
+      user &&
+      fetchedUserData === null &&
+      Object.keys(profileData).length === 0
+    ) {
       // fetchProfileData 결과 사용자 문서가 없는 경우
       console.log("No fetchedUserData found. Starting with empty form.");
       setProfileData({});
@@ -267,16 +304,19 @@ const CompleteProfilePage = () => {
     // user, authLoading, fetchedUserData 상태가 변경될 때마다 실행
   }, [user, authLoading, fetchedUserData]); // profileData는 여기서 변경하므로 의존성 배열에서 제외
 
-
   // --- UI 렌더링 ---
 
   // 페이지 로딩 상태에 따른 UI 표시
   if (authLoading || pageLoading || savingProfile || uploadingPicture) {
-    const loadingMessage = authLoading ? '인증 정보 로딩 중...'
-      : pageLoading ? '기존 프로필 정보 불러오는 중...'
-        : savingProfile ? '프로필 정보 저장 중...'
-          : uploadingPicture ? '프로필 사진 업로드 중...'
-            : '로딩 중...'; // Fallback
+    const loadingMessage = authLoading
+      ? "인증 정보 로딩 중..."
+      : pageLoading
+        ? "기존 프로필 정보 불러오는 중..."
+        : savingProfile
+          ? "프로필 정보 저장 중..."
+          : uploadingPicture
+            ? "프로필 사진 업로드 중..."
+            : "로딩 중..."; // Fallback
 
     return (
       <div className="flex flex-col justify-center items-center min-h-screen">
@@ -305,19 +345,23 @@ const CompleteProfilePage = () => {
     return null;
   }
 
-
   // 로딩 완료 및 로그인 사용자 상태에서 폼 렌더링
   return (
-    <div className="container mx-auto p-4">
+    <>
       <h1 className="text-3xl font-bold mb-6 text-center">추가 정보 입력</h1>
       {/* TODO: 필요시 안내 메시지 */}
       {/* <p className="mb-6 text-gray-600">리그 등록을 위해 스케이터 정보를 입력해주세요.</p> */}
 
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto"> {/* 중앙 정렬 및 max-width */}
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
+        {" "}
+        {/* 중앙 정렬 및 max-width */}
         <form onSubmit={handleSubmitProfile}>
           {/* 이름 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="name"
+            >
               이름
             </label>
             <input
@@ -325,7 +369,7 @@ const CompleteProfilePage = () => {
               id="name"
               name="name"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.name || ''}
+              value={profileData.name || ""}
               onChange={handleInputChange}
               required // 필수 입력 필드
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
@@ -334,7 +378,10 @@ const CompleteProfilePage = () => {
 
           {/* 생년월일 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="dateOfBirth">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="dateOfBirth"
+            >
               생년월일
             </label>
             <input
@@ -342,7 +389,7 @@ const CompleteProfilePage = () => {
               id="dateOfBirth"
               name="dateOfBirth"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.dateOfBirth || ''} // YYYY-MM-DD 문자열
+              value={profileData.dateOfBirth || ""} // YYYY-MM-DD 문자열
               onChange={handleInputChange}
               required // 필수 입력 필드
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
@@ -351,7 +398,10 @@ const CompleteProfilePage = () => {
 
           {/* 스탠스 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="stance">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="stance"
+            >
               스탠스
             </label>
             <input
@@ -359,7 +409,7 @@ const CompleteProfilePage = () => {
               id="stance"
               name="stance"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.stance || ''}
+              value={profileData.stance || ""}
               onChange={handleInputChange}
               // required // 필수 여부는 요구사항에 따라 다름
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
@@ -368,7 +418,10 @@ const CompleteProfilePage = () => {
 
           {/* 스폰서 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="sponsor">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="sponsor"
+            >
               스폰서
             </label>
             <input
@@ -376,7 +429,7 @@ const CompleteProfilePage = () => {
               id="sponsor"
               name="sponsor"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.sponsor || ''}
+              value={profileData.sponsor || ""}
               onChange={handleInputChange}
               // required // 필수 여부는 요구사항에 따라 다름
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
@@ -385,7 +438,10 @@ const CompleteProfilePage = () => {
 
           {/* 전화번호 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="phoneNumber">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="phoneNumber"
+            >
               전화번호
             </label>
             <input
@@ -393,7 +449,7 @@ const CompleteProfilePage = () => {
               id="phoneNumber"
               name="phoneNumber"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.phoneNumber || ''}
+              value={profileData.phoneNumber || ""}
               onChange={handleInputChange}
               // required // 필수 여부는 요구사항에 따라 다름
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
@@ -402,7 +458,10 @@ const CompleteProfilePage = () => {
 
           {/* 이메일 필드 (읽기 전용 - Auth에서 가져옴) */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="email"
+            >
               이메일
             </label>
             <input
@@ -410,21 +469,24 @@ const CompleteProfilePage = () => {
               id="email"
               name="email"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-gray-100 cursor-not-allowed"
-              value={user?.email || ''} // Auth user에서 이메일 가져옴
+              value={user?.email || ""} // Auth user에서 이메일 가져옴
               disabled // 수정 불가
             />
           </div>
 
           {/* 기타 전달사항 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="otherNotes">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="otherNotes"
+            >
               기타 전달사항
             </label>
             <textarea
               id="otherNotes"
               name="otherNotes"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.otherNotes || ''}
+              value={profileData.otherNotes || ""}
               onChange={handleInputChange}
               rows={4}
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
@@ -433,7 +495,10 @@ const CompleteProfilePage = () => {
 
           {/* 프로필 사진 업로드 필드 */}
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="profilePicture">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="profilePicture"
+            >
               프로필 사진
             </label>
             <input
@@ -451,7 +516,17 @@ const CompleteProfilePage = () => {
                 {profilePictureFile ? (
                   <p>선택된 파일: {profilePictureFile.name}</p>
                 ) : (
-                  <p>현재 이미지: <a href={profileData.profilePictureUrl} target="_blank" rel="noopener noreferrer" className="underline">보기</a></p>
+                  <p>
+                    현재 이미지:{" "}
+                    <a
+                      href={profileData.profilePictureUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline"
+                    >
+                      보기
+                    </a>
+                  </p>
                 )}
                 {/* TODO: 이미지 제거 버튼 */}
                 {/* {profileData.profilePictureUrl && !profilePictureFile && (
@@ -459,18 +534,24 @@ const CompleteProfilePage = () => {
                            )} */}
               </div>
             )}
-            {uploadingPicture && <p className="text-blue-500 mt-1">업로드 중...</p>} {/* 업로드 로딩 표시 */}
+            {uploadingPicture && (
+              <p className="text-blue-500 mt-1">업로드 중...</p>
+            )}{" "}
+            {/* 업로드 로딩 표시 */}
           </div>
-
 
           {/* 저장 버튼 */}
           <div className="flex items-center justify-between mt-6">
             <button
               type="submit"
-              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${savingProfile || uploadingPicture || pageLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${savingProfile || uploadingPicture || pageLoading ? "opacity-50 cursor-not-allowed" : ""}`}
               disabled={savingProfile || uploadingPicture || pageLoading} // 저장/업로드/페이지 로딩 중 비활성화
             >
-              {savingProfile ? '저장 중...' : uploadingPicture ? '사진 업로드 중...' : '저장하기'}
+              {savingProfile
+                ? "저장 중..."
+                : uploadingPicture
+                  ? "사진 업로드 중..."
+                  : "저장하기"}
             </button>
           </div>
 
@@ -484,8 +565,7 @@ const CompleteProfilePage = () => {
                </Link>
            </div> */}
       </div>
-
-    </div>
+    </>
   );
 };
 

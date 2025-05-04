@@ -454,7 +454,7 @@ const LeagueDetailPage = () => {
 
   // 데이터 로딩 완료 및 관리자로 확인된 경우 UI 렌더링
   return (
-    <div className="container mx-auto p-4">
+    <>
       <h1 className="text-3xl font-bold mb-6">
         {isEditing ? "리그 정보 수정" : `${league.name} 리그 관리`}
       </h1>
@@ -496,7 +496,7 @@ const LeagueDetailPage = () => {
               <strong>이름:</strong> {league.name}
             </p>
             <p>
-              <strong>날짜:</strong>{" "}
+              <strong>날짜: </strong>
               {league.date ? league.date.toLocaleDateString() : "미지정"}
             </p>
             <p>
@@ -589,7 +589,7 @@ const LeagueDetailPage = () => {
                     <p>선택된 파일: {bannerImageFile.name}</p>
                   ) : (
                     <p>
-                      현재 이미지:{" "}
+                      현재 이미지:
                       <a
                         href={editFormData.bannerImageUrl}
                         target="_blank"
@@ -608,7 +608,7 @@ const LeagueDetailPage = () => {
               )}
               {bannerUploading && (
                 <p className="text-blue-500 mt-1">업로드 중...</p>
-              )}{" "}
+              )}
               {/* 업로드 로딩 표시 */}
             </div>
             {/* 간단한 내용 입력 필드 */}
@@ -652,7 +652,7 @@ const LeagueDetailPage = () => {
         {/* 해당 리그의 스케이터 목록 */}
         <h3 className="text-xl font-medium mb-2">
           등록된 스케이터 목록 ({skatersInLeague.length}명)
-        </h3>{" "}
+        </h3>
         {/* 스케이터 수 표시 */}
         {skatersInLeague.length === 0 ? (
           <p className="p-4 bg-gray-100 rounded">
@@ -667,84 +667,78 @@ const LeagueDetailPage = () => {
                 key={skater.registrationId} // 등록 문서 ID를 key로 사용
                 className="flex flex-col md:flex-row md:justify-between items-start md:items-center bg-gray-100 p-4 rounded-lg shadow-sm" // 스타일 개선 (배경색, 패딩, 모서리 둥글게, 그림자, Flexbox 레이아웃)
               >
-                {/* 좌측: 사진 및 기본 정보 - 세로 중앙 정렬을 위해 items-center */}
-                <div className="flex items-center mb-4 md:mb-0 w-full md:w-1/4">
-                  {" "}
-                  {/* 너비 설정, 하단 여백 */}
-                  {/* 프로필 사진 */}
-                  <img
-                    src={
-                      skater.profilePictureUrl || "/placeholder-profile.webp"
-                    } // TODO: 기본 이미지 경로 설정 (profilePictureUrl 필드 사용)
-                    alt={`${skater.name || "스케이터"} 프로필 사진`}
-                    className="w-14 object-cover mr-4 flex-shrink-0" // 크기, 모양, 간격, 축소 방지
-                  />
-                  {/* 이름 및 UID, 이메일 */}
-                  <div className="flex-grow">
-                    {/* 이름 표시 (name 필드 사용) */}
-                    <p className="font-semibold text-gray-900">
-                      {skater.name || "이름 미정"}
-                    </p>
-                    {/* 이메일 표시 (email 필드 사용) */}
-                    {skater.email && (
-                      <p className="text-sm text-gray-600 truncate">
-                        이메일: {skater.email}
-                      </p>
-                    )}
-                    {/* truncate 클래스 추가로 긴 이메일 처리 */}
-                    {/* 생년월일 (dateOfBirth 필드 사용) */}
-                    {skater.dateOfBirth instanceof Date && (
-                      <p className="text-sm text-gray-600">
-                        생년월일: {skater.dateOfBirth.toLocaleDateString()}
-                      </p>
-                    )}
-                  </div>
-                </div>
-
+                {/* 프로필 사진 */}
+                <img
+                  src={skater.profilePictureUrl || "/placeholder-profile.webp"} // TODO: 기본 이미지 경로 설정 (profilePictureUrl 필드 사용)
+                  alt={`${skater.name || "스케이터"} 프로필 사진`}
+                  className="w-18 object-cover mr-4 flex-shrink-0" // 크기, 모양, 간격, 축소 방지
+                />
                 {/* 중앙: 스케이터 상세 정보 및 등록 상태 - Grid layout */}
                 {/* 작은 화면에서는 1열, 중간 화면부터 2열 그리드 */}
                 <div className="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700 w-full md:w-1/2 mt-4 md:mt-0">
-                  {/* Date 객체인지 확인 후 포맷팅 */}
-                  {/* 스탠스 (stance 필드 사용) */}
-                  {skater.stance && (
-                    <p>
-                      <strong>스탠스:</strong> {skater.stance}
+                  {/* 이름 표시 (name 필드 사용) */}
+                  <p className="font-semibold text-gray-900">
+                    {skater.name || "미입력"}
+                  </p>
+                  {/* 생년월일 (dateOfBirth 필드 사용) */}
+                  {skater.dateOfBirth instanceof Date && (
+                    <p className="text-sm text-gray-600">
+                      <strong>생년월일: </strong>
+                      {skater.dateOfBirth.toLocaleDateString()}
                     </p>
                   )}
-                  {/* 스폰서 (sponsor 필드 사용) */}
-                  {skater.sponsor && (
-                    <p>
-                      <strong>스폰서:</strong> {skater.sponsor}
+                  {/* 이메일 표시 (email 필드 사용) */}
+                  {skater.email && (
+                    <p className="text-sm text-gray-600 truncate">
+                      <strong>이메일: </strong>
+                      {skater.email}
                     </p>
                   )}
                   {/* 전화번호 (phoneNumber 필드 사용) */}
                   {skater.phoneNumber && (
                     <p>
-                      <strong>전화번호:</strong>{" "}
+                      <strong>전화번호: </strong>
                       {formatPhoneNumber(skater.phoneNumber)}
+                    </p>
+                  )}
+                  {/* truncate 클래스 추가로 긴 이메일 처리 */}
+                  {/* 스탠스 (stance 필드 사용) */}
+                  {skater.stance && (
+                    <p>
+                      <strong>스탠스: </strong>
+                      {skater.stance}
+                    </p>
+                  )}
+                  {/* 스폰서 (sponsor 필드 사용) */}
+                  {skater.sponsor && (
+                    <p>
+                      <strong>스폰서: </strong>
+                      {skater.sponsor}
                     </p>
                   )}
                   {/* ★ 포매터 함수 사용 */}
                   {/* 등록 시각 (registeredAt 필드 사용) */}
                   {skater.registeredAt instanceof Date && (
                     <p>
-                      <strong>등록 시각:</strong>{" "}
+                      <strong>등록 시각: </strong>
                       {skater.registeredAt.toLocaleString()}
                     </p>
-                  )}{" "}
+                  )}
                   {/* 등록 시각 표시 */}
                   {/* 등록 상태 (status 필드 사용) */}
                   {skater.status && (
                     <p>
-                      <strong>등록 상태:</strong> {skater.status}
+                      <strong>등록 상태: </strong>
+                      {skater.status}
                     </p>
                   )}
                   {/* 기타 전달사항 (otherNotes 필드 사용) - 필요시 전체 너비 사용 */}
                   {skater.otherNotes && (
                     <p className="col-span-1 sm:col-span-2">
-                      <strong>기타:</strong> {skater.otherNotes}
+                      <strong>기타: </strong>
+                      {skater.otherNotes}
                     </p>
-                  )}{" "}
+                  )}
                   {/* col-span-2로 두 칸 차지 */}
                   {/* TODO: 스케이터 계정 생성 시각 (createdAt 필드 사용) 등 필요한 다른 정보 표시 */}
                   {/* {skater.createdAt instanceof Date && <p><strong>계정 생성:</strong> {skater.createdAt.toLocaleDateString()}</p>} */}
@@ -752,7 +746,6 @@ const LeagueDetailPage = () => {
 
                 {/* 우측: 관리 버튼 - 세로 중앙 정렬을 위해 items-center */}
                 <div className="mt-4 md:mt-0 flex flex-col md:flex-row items-start md:items-center md:justify-end w-full md:w-1/4">
-                  {" "}
                   {/* 너비 설정, 상단 여백, 정렬 */}
                   {/* TODO: 해당 리그에서의 스케이터 점수 입력/수정 버튼 */}
                   {/* <button className="text-blue-600 hover:underline text-sm mb-2 md:mb-0 md:mr-2">점수 관리</button> */}
@@ -764,10 +757,7 @@ const LeagueDetailPage = () => {
           </ul>
         )}
       </div>
-
-      {/* TODO: 해당 리그의 심사 결과 관리 섹션 */}
-      {/* TODO: 해당 리그의 랭킹 확정/관리 섹션 */}
-    </div>
+    </>
   );
 };
 
