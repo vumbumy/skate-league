@@ -252,7 +252,7 @@ const CompleteProfilePage = () => {
         router.push(`/league/${redirectLeagueId}/register`);
       } else {
         // 리다이렉트 정보가 없으면 기본 페이지로 이동 (예: 마이페이지, 홈)
-        router.push("/profile"); // 또는 '/' 등 마이페이지 경로
+        router.push("/login"); // 또는 '/' 등 마이페이지 경로
       }
     } catch (error: unknown) {
       console.error("Failed to save user profile:", error);

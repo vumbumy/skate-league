@@ -69,9 +69,7 @@ const LeagueSchedulePage = () => {
   }
 
   return (
-    <>
-      <h1 className="text-3xl font-bold mb-6">리그 일정</h1>
-
+    <div className="h-full">
       {leagues.length === 0 ? (
         <p className="p-4 bg-white rounded shadow">
           등록된 리그 일정이 없습니다.
@@ -120,7 +118,7 @@ const LeagueSchedulePage = () => {
           ))}
         </ul>
       )}
-    </>
+    </div>
   );
 };
 

@@ -288,8 +288,8 @@ const LeagueRegistrationPage = () => {
                 : "로딩 중..."; // Fallback
 
     return (
-      <div className="flex flex-col justify-center items-center min-h-screen">
-        <TailSpin color="#00BFFF" height={80} width={80} />
+      <div className="flex flex-col justify-center items-center h-screen mx-auto ">
+        <TailSpin height={80} width={80} />
         <p className="mt-4 text-gray-600">{loadingMessage}</p>
       </div>
     );

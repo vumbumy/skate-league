@@ -57,3 +57,8 @@ export const formatPhoneNumber = (
   // 또는 사용자에게 오류 메시지를 반환하거나 다른 기본 형식을 적용할 수 있습니다.
   return cleaned;
 };
+
+export function capitalizeFirstLetter(val?: string) {
+  if (!val) return "??";
+  return val.charAt(0).toUpperCase() + String(val).slice(1);
+}

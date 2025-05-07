@@ -63,7 +63,7 @@ const GnbRenderer = () => {
           >
             <Link href="/">홈</Link>
             <Link href="/league">리그 일정</Link>
-            {/*<Link href="/more">더보기</Link>*/}
+            <Link href="/more">선수 목록</Link>
             {isAdmin && (
               <>
                 <Link href="/admin">리그 관리</Link>

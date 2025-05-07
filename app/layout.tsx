@@ -21,30 +21,39 @@ export default function RootLayout({
 
   return (
     <html lang="ko">
-      <body className="bg-gray-100 text-gray-900 min-h-screen flex flex-col">
+      <body className="flex h-screen max-w-2xl mx-auto bg-gray-600">
         {/* body에 flex 및 min-h-screen 추가 (전체 높이 확보 및 flex 컨테이너화) */}
         {/* AuthProvider로 앱 전체를 감싸서 인증 정보를 전역적으로 제공 */}
         <AuthProvider>
-          {/* GNB를 감싸는 고정 컨테이너 */}
-          {/* GnbRenderer가 GNB 또는 null을 렌더링하도록 합니다. */}
-          {/* GNB의 실제 높이에 맞게 아래 pt- 클래스를 조정해야 합니다. */}
-          {/* GNB 높이를 예를 들어 56px (Tailwind p-4)으로 가정하고 pt-14 (56px) 사용 */}
-          <div className="fixed top-0 left-0 w-full z-50 bg-gray-800">
-            {/* GNB 배경색도 고정 컨테이너에 주는 것이 좋습니다 */}
-            {/* GnbRenderer는 이 고정 컨테이너 안에서 렌더링될지 말지를 결정 */}
-            <GnbRenderer />
+          {/* GNB를 감싸는 고정 컨테이너 - 이 div는 전체 너비를 차지 */}
+          <div className="fixed top-0 left-0 w-full z-50 ">
+            {/* GNB 배경색도 여기에 주는 것이 좋습니다 */}
+            {/* ★ GNB 내용을 담고 최대 너비 768px로 중앙에 정렬할 내부 컨테이너 */}
+            {/* max-w-2xl: 최대 너비 768px */}
+            {/* mx-auto: 블록 요소를 가로 중앙 정렬 */}
+            {/* w-full: 부모 너비 (여기서는 max-w-2xl까지)를 채우도록 함 */}
+            {/* p-4: 내부 콘텐츠 (GNB)의 상하좌우 패딩 추가 (GNB 컴포넌트 자체 패딩과 중복될 수 있으니 조정 필요) */}
+            <div className="max-w-2xl mx-auto w-full ">
+              {/* GnbRenderer는 이 내부 컨테이너 안에서 렌더링될지 말지를 결정 */}
+              {/* GnbRenderer 자체가 GNB 컴포넌트를 렌더링하고, GNB 컴포넌트 자체에 패딩이 있을 수 있습니다. */}
+              {/* GNB 컴포넌트 (GNB.tsx, AdminGlobalNavigationBar.tsx)의 가장 바깥 요소에 있는 패딩(예: p-4)과 여기서 주는 p-4가 중복될 수 있으니 둘 중 한 곳에서만 주는 것이 좋습니다. */}
+              <GnbRenderer />
+            </div>
           </div>
 
-          {/* 하위 페이지 콘텐츠 영역 */}
-          {/* GNB 높이만큼 상단 여백 (pt-14 예시), flex-grow로 남은 공간 채우기 */}
-          {/* ★flex, flex-col, justify-center, h-full 추가하여 세로 중앙 정렬 */}
           <div
-            className={`flex-grow flex flex-col justify-center h-full ${hideGnb || "pt-14"}`}
+            className={`flex w-full mx-auto bg-neutral-950 ${hideGnb || "pt-14"}`}
           >
-            <div className="container mx-auto m-4">
-              {/* 콘텐츠의 max-width 및 가로 중앙 정렬, 좌우 여백 */}
+            {/* Outer div handles vertical space and conditional padding */}
+            {/* ★ 실제 페이지 콘텐츠를 담고 GNB와 동일한 너비/중앙 정렬을 수행할 내부 컨테이너 */}
+            {/* max-w-2xl: 최대 너비 768px */}
+            {/* mx-auto: 블록 요소를 가로 중앙 정렬 */}
+            {/* w-full: 부모 너비 (여기서는 flex-grow outer div의 너비) 내에서 max-w-2xl까지 채움 */}
+            {/* p-4: 내부 콘텐츠 (children)의 상하좌우 패딩 추가 */}
+            {/* flex-grow flex flex-col justify-center: 이 div를 세로로 확장시키고 내부 children을 세로 중앙 정렬 */}
+            <div className="mx-auto w-full p-4 flex-grow flex flex-col justify-center">
               {children}
-              {/* children은 이제 이 flex/justify-center 컨테이너의 자식으로 렌더링 */}
+              {/* children은 이제 이 내부 컨테이너의 자식으로 렌더링되며, 세로 중앙 정렬됩니다. */}
             </div>
           </div>
         </AuthProvider>
