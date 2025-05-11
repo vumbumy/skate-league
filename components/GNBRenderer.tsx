@@ -4,14 +4,15 @@
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext"; // Link 사용 시 필요
+import { useAuth } from "@/context/AuthContext";
+import Avatar from "@/components/Avatar"; // Link 사용 시 필요
 
 // AdminGlobalNavigationBar 컴포넌트의 내용은 이 파일 안으로 통합됩니다.
 // import AdminGlobalNavigationBar from "@/components/AdminGlobalNavigationBar"; // 이 import는 더 이상 필요 없습니다.
 
 // 이제 GnbRenderer 컴포넌트가 GNB 렌더링 로직과 Admin GNB의 UI를 모두 담당합니다.
 const GnbRenderer = () => {
-  const { isAdmin } = useAuth(); // authLoading으로 이름 변경
+  const { userData, isAdmin } = useAuth(); // authLoading으로 이름 변경
 
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
@@ -69,6 +70,7 @@ const GnbRenderer = () => {
                 <Link href="/admin">리그 관리</Link>
               </>
             )}
+            {userData && <Avatar email={userData.email} size={24} />}
           </div>
         </nav>
       )}

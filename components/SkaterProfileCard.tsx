@@ -27,7 +27,16 @@ const SkaterProfileCard = ({ skater }: { skater: UserData }) => {
             </div>
 
             <div className="flex items-center">
-              <Instagram size={36} />
+              {skater.instagram && (
+                <a
+                  href={`https://www.instagram.com/${skater.instagram}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:opacity-80"
+                >
+                  <Instagram size={36} />
+                </a>
+              )}
               {/*<div className="text-right">*/}
               {/*  <div className="text-2xl font-light">Rank 1</div>*/}
               {/*  <div className="text-2xl font-light">#</div>*/}

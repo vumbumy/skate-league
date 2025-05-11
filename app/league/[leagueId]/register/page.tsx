@@ -95,7 +95,7 @@ const LeagueRegistrationPage = () => {
         "Skater profile incomplete. Redirecting to complete profile page.",
       );
       // 리다이렉트 시 원래 등록하려던 리그 ID를 쿼리 파라미터로 넘겨주면 보완 후 다시 돌아오기 용이
-      router.push(`/complete-profile?redirect=${leagueId}`); // ★ 정보 보완 페이지 경로
+      router.push(`/profile?redirect=${leagueId}`); // ★ 정보 보완 페이지 경로
       return; // 중단
     }
 
@@ -206,7 +206,7 @@ const LeagueRegistrationPage = () => {
   //   if (!isComplete) {
   //     // Profile is incomplete - Redirect to complete profile page
   //     console.warn("Skater profile incomplete. Redirecting to complete profile page.");
-  //     router.push(`/complete-profile?redirect=${leagueId}`); // Pass leagueId to redirect back
+  //     router.push(`/profile?redirect=${leagueId}`); // Pass leagueId to redirect back
   //     // 이 시점에서 컴포넌트는 리다이렉트되므로 더 이상 렌더링하지 않습니다.
   //     return false; // 정보가 미비하여 리다이렉트 수행
   //   }

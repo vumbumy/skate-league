@@ -1,19 +1,18 @@
-// app/complete-profile/page.tsx
+// app/profile/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // useSearchParams import
 import { useAuth } from "@/context/AuthContext"; // useAuth hook
-import { doc, getDoc, updateDoc, DocumentSnapshot } from "firebase/firestore"; // Firestore functions
+import { doc, DocumentSnapshot, getDoc, updateDoc } from "firebase/firestore"; // Firestore functions
 import {
+  deleteObject,
+  getDownloadURL,
   ref,
   uploadBytes,
-  getDownloadURL,
-  deleteObject,
 } from "firebase/storage"; // Storage functions
 import { db, storage } from "@/firebase/config"; // db, storage import
 import { TailSpin } from "react-loader-spinner"; // Loading spinner
-
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
 import { UserData } from "@/types/firebase";
 
@@ -348,12 +347,9 @@ const CompleteProfilePage = () => {
   // 로딩 완료 및 로그인 사용자 상태에서 폼 렌더링
   return (
     <>
-      <h1 className="text-3xl font-bold mb-6 text-center">추가 정보 입력</h1>
       {/* TODO: 필요시 안내 메시지 */}
       {/* <p className="mb-6 text-gray-600">리그 등록을 위해 스케이터 정보를 입력해주세요.</p> */}
-
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
-        {" "}
         {/* 중앙 정렬 및 max-width */}
         <form onSubmit={handleSubmitProfile}>
           {/* 이름 필드 */}
@@ -538,6 +534,26 @@ const CompleteProfilePage = () => {
               <p className="text-blue-500 mt-1">업로드 중...</p>
             )}{" "}
             {/* 업로드 로딩 표시 */}
+          </div>
+
+          {/* 스폰서 필드 */}
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="instagram"
+            >
+              인스타
+            </label>
+            <input
+              type="text"
+              id="instagram"
+              name="instagram"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              value={profileData.instagram || ""}
+              onChange={handleInputChange}
+              // required // 필수 여부는 요구사항에 따라 다름
+              disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
+            />
           </div>
 
           {/* 저장 버튼 */}

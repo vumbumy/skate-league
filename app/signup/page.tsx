@@ -47,7 +47,7 @@ const SignupPage = () => {
 
       console.log("사용자 가입 및 Firestore 저장 성공:", user.uid);
 
-      router.push(`/complete-profile`); // ★ 정보 보완 페이지 경로
+      router.push(`/profile`); // ★ 정보 보완 페이지 경로
 
       // 가입 성공 후 리다이렉트 (예: 홈 페이지 또는 로그인 페이지)
       // router.push("/login"); // 가입 후 로그인 페이지로 이동 유도
