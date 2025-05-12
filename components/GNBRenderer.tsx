@@ -12,7 +12,7 @@ import Avatar from "@/components/Avatar"; // Link 사용 시 필요
 
 // 이제 GnbRenderer 컴포넌트가 GNB 렌더링 로직과 Admin GNB의 UI를 모두 담당합니다.
 const GnbRenderer = () => {
-  const { userData, isAdmin } = useAuth(); // authLoading으로 이름 변경
+  const { userData } = useAuth(); // authLoading으로 이름 변경
 
   const pathname = usePathname();
   const [isMounted, setIsMounted] = useState(false);
@@ -42,34 +42,21 @@ const GnbRenderer = () => {
   return (
     <header className="text-white w-full">
       {isAdminArea ? (
-        <nav className="bg-blue-800 p-4 text-white w-full">
+        <nav className="bg-blue-800 px-6 py-4 text-white w-full">
           <div className="container mx-auto flex justify-between items-center">
-            <Link href="/admin" className="font-bold text-lg">
-              스케이터 리그 관리
-            </Link>
-            <div>
-              <Link href="/">홈</Link>
-            </div>
+            <Link href="/">홈</Link>
+            <span>스케이터 리그 관리</span>
           </div>
         </nav>
       ) : (
-        <nav className="bg-black p-4 text-white w-full">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-around",
-              maxWidth: "800px",
-              margin: "0 auto",
-            }}
-          >
+        <nav className="relative bg-black px-6 py-4 text-white w-full flex gap-6">
+          <div className="flex gap-6 mx-auto md:ml-0">
             <Link href="/">홈</Link>
             <Link href="/league">리그 일정</Link>
             <Link href="/more">선수 목록</Link>
-            {isAdmin && (
-              <>
-                <Link href="/admin">리그 관리</Link>
-              </>
-            )}
+          </div>
+
+          <div className="absolute flex gap-6 ml-auto right-6">
             {userData && <Avatar email={userData.email} size={24} />}
           </div>
         </nav>

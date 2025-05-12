@@ -2,6 +2,9 @@
 import { Menu } from "@headlessui/react";
 import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/config";
+import Link from "next/link";
+import React from "react";
+import { useAuth } from "@/context/AuthContext";
 
 interface AvatarProps {
   email: string;
@@ -9,6 +12,7 @@ interface AvatarProps {
 }
 
 const Avatar = ({ email, size = 40 }: AvatarProps) => {
+  const { isAdmin } = useAuth(); // authLoading으로 이름 변경
   const initial = email?.charAt(0).toUpperCase();
 
   return (
@@ -28,6 +32,14 @@ const Avatar = ({ email, size = 40 }: AvatarProps) => {
         >
           내 정보
         </Menu.Item>
+        {isAdmin && (
+          <Menu.Item
+            as="button"
+            className="w-full px-4 py-2 text-sm text-gray-700 ui-active:bg-gray-100 text-center"
+          >
+            <Link href="/admin">리그 관리</Link>
+          </Menu.Item>
+        )}
         <Menu.Item
           as="button"
           onClick={() => signOut(auth)}

@@ -18,32 +18,42 @@ function getAgeFromDate(birthDate: Date): number {
   return age;
 }
 
-type AgeGroup =
-  | "Mini Groms"
-  | "Young Rippers"
-  | "Future Pros"
-  | "Uncategorized";
+enum AgeGroup {
+  MiniGroms = "Mini Groms",
+  YoungRippers = "Young Rippers",
+  FuturePros = "Future Pros",
+  Uncategorized = "Uncategorized",
+}
+
+const AgeGroupMap: Record<AgeGroup, string> = {
+  [AgeGroup.MiniGroms]: "8-9",
+  [AgeGroup.YoungRippers]: "10-11",
+  [AgeGroup.FuturePros]: "12+",
+  [AgeGroup.Uncategorized]: "",
+};
 
 function getAgeGroup(dateOfBirth?: Date): AgeGroup {
-  if (!dateOfBirth) return "Uncategorized";
+  if (!dateOfBirth) return AgeGroup.Uncategorized;
   const age = getAgeFromDate(dateOfBirth);
-  if (age >= 8 && age <= 9) return "Mini Groms";
-  if (age >= 10 && age <= 11) return "Young Rippers";
-  if (age >= 12) return "Future Pros";
-  return "Uncategorized";
+  if (age >= 8 && age <= 9) return AgeGroup.MiniGroms;
+  if (age >= 10 && age <= 11) return AgeGroup.YoungRippers;
+  if (age >= 12) return AgeGroup.FuturePros;
+  return AgeGroup.Uncategorized;
 }
 
 const MorePage = () => {
   const [groupedUsers, setGroupedUsers] = useState<
     Record<AgeGroup, UserData[]>
   >({
-    "Mini Groms": [],
-    "Young Rippers": [],
-    "Future Pros": [],
-    Uncategorized: [],
+    [AgeGroup.MiniGroms]: [],
+    [AgeGroup.YoungRippers]: [],
+    [AgeGroup.FuturePros]: [],
+    [AgeGroup.Uncategorized]: [],
   });
 
-  const [selectedGroup, setSelectedGroup] = useState<AgeGroup>("Mini Groms");
+  const [selectedGroup, setSelectedGroup] = useState<AgeGroup>(
+    AgeGroup.MiniGroms,
+  );
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -55,10 +65,10 @@ const MorePage = () => {
         const snapshot = await getDocs(usersQuery);
 
         const grouped: Record<AgeGroup, UserData[]> = {
-          "Mini Groms": [],
-          "Young Rippers": [],
-          "Future Pros": [],
-          Uncategorized: [],
+          [AgeGroup.MiniGroms]: [],
+          [AgeGroup.YoungRippers]: [],
+          [AgeGroup.FuturePros]: [],
+          [AgeGroup.Uncategorized]: [],
         };
 
         snapshot.docs.forEach((doc) => {
@@ -77,47 +87,51 @@ const MorePage = () => {
     fetchUsers();
   }, []);
 
-  const ageGroups: AgeGroup[] = [
-    "Mini Groms",
-    "Young Rippers",
-    "Future Pros",
-    "Uncategorized",
-  ];
-
   return (
-    <div className="w-full h-full flex flex-col items-center">
+    <div className="w-full h-full flex flex-col">
       {/* 탭 UI */}
-      <div className="w-4/5 flex justify-around mt-4 mb-6">
-        {ageGroups.map((group) => (
-          <button
-            key={group}
-            onClick={() => setSelectedGroup(group)}
-            className={`px-4 py-2 text-sm font-medium rounded-full border transition-all duration-200
-              ${selectedGroup === group ? "bg-white text-black" : "bg-transparent border-white text-white"}`}
-          >
-            {group}
-          </button>
-        ))}
+      <div className="relative w-full max-w-3xl mb-6">
+        <div
+          id="age-group-scroll"
+          className="flex gap-2 overflow-x-auto scrollbar-hide"
+          style={{ scrollSnapType: "x mandatory" }}
+        >
+          {Object.values(AgeGroup).map((group) => (
+            <button
+              key={group}
+              onClick={() => setSelectedGroup(group)}
+              className={`shrink-0 px-4 py-2 text-sm font-medium rounded-full border whitespace-nowrap transition-all duration-200
+          ${selectedGroup === group ? "bg-white text-black" : "bg-transparent border-white text-white"}`}
+              style={{ scrollSnapAlign: "start" }}
+            >
+              {group}
+              <br />
+              {AgeGroupMap[group]}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* 스케이터 목록 */}
-      <div className="w-4/5 space-y-12" style={{ paddingBottom: "80px" }}>
-        <ul className="space-y-6">
-          {groupedUsers[selectedGroup].map((skater) => (
-            <li key={skater.uid}>
-              <SkaterProfileCard skater={skater} />
-            </li>
-          ))}
-        </ul>
+      <div
+        className="space-y-6 overflow-y-auto"
+        style={{ marginBottom: "80px" }}
+      >
+        {groupedUsers[selectedGroup].map((skater) => (
+          <SkaterProfileCard key={skater.uid} skater={skater} />
+        ))}
       </div>
 
       {/* 고정된 선수 등록 버튼 */}
-      <div className="fixed bottom-0 left-0 w-full z-50 text-white">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md">
         <a
           href="/signup"
-          className="flex max-w-2xl mx-auto w-full justify-center items-center bg-neutral-700 py-4 px-8 h-full"
+          className="inline-flex items-center justify-center w-full px-8 py-3 text-lg font-medium
+           border border-white text-white bg-transparent rounded-full
+           backdrop-blur-sm transition-colors
+           hover:bg-white hover:text-black"
         >
-          <span className="text-2xl">선수 등록</span>
+          REGISTER
         </a>
       </div>
     </div>

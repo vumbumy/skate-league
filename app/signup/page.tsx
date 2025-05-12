@@ -120,7 +120,7 @@ const SignupPage = () => {
           <div className="flex items-center justify-between">
             <button
               type="submit"
-              className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+              className={`bg-black hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
               disabled={loading} // 로딩 중 버튼 비활성화
             >
               {loading ? "가입 중..." : "가입하기"}
