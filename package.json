@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.2",
+    "@heroicons/react": "^2.2.0",
     "autoprefixer": "^10.4.21",
     "firebase": "^11.6.0",
+    "heroicons": "^2.2.0",
     "lucide-react": "^0.508.0",
     "next": "15.3.1",
     "postcss": "^8.5.3",

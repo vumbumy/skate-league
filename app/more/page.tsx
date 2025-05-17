@@ -6,6 +6,7 @@ import { db } from "@/firebase/config";
 import { UserData } from "@/types/firebase";
 import SkaterProfileCard from "@/components/SkaterProfileCard";
 import { toDateOrUndefined } from "@/lib/utils";
+import Link from "next/link";
 
 // 만 나이 계산
 function getAgeFromDate(birthDate: Date): number {
@@ -124,7 +125,7 @@ const MorePage = () => {
 
       {/* 고정된 선수 등록 버튼 */}
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md">
-        <a
+        <Link
           href="/signup"
           className="inline-flex items-center justify-center w-full px-8 py-3 text-lg font-medium
            border border-white text-white bg-transparent rounded-full
@@ -132,7 +133,7 @@ const MorePage = () => {
            hover:bg-white hover:text-black"
         >
           REGISTER
-        </a>
+        </Link>
       </div>
     </div>
   );

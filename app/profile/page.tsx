@@ -68,10 +68,10 @@ const CompleteProfilePage = () => {
         // 폼 초기화: 가져온 데이터 또는 Context의 초기 데이터 사용 (Context 데이터가 더 최신일 수 있음)
         // AuthProvider가 항상 최신 데이터를 가져온다고 가정하고 initialUserData 사용
         setProfileData(initialUserData || userData); // Context 데이터 우선, 없으면 새로 가져온 데이터 사용
-        console.log(
-          "Existing user profile data loaded:",
-          initialUserData || userData,
-        );
+        // console.log(
+        //   "Existing user profile data loaded:",
+        //   initialUserData || userData,
+        // );
       } else {
         console.warn(
           `User document not found for UID: ${userId}. Starting with empty form.`,
@@ -279,7 +279,7 @@ const CompleteProfilePage = () => {
     ) {
       // fetchedUserData가 null이 아니면 그 데이터로, null이면 빈 객체로 초기화
       setProfileData(fetchedUserData || {});
-      console.log("Form initialized with fetchedUserData:", fetchedUserData);
+      // console.log("Form initialized with fetchedUserData:", fetchedUserData);
     } else if (
       !authLoading &&
       user &&
@@ -349,7 +349,7 @@ const CompleteProfilePage = () => {
     <>
       {/* TODO: 필요시 안내 메시지 */}
       {/* <p className="mb-6 text-gray-600">리그 등록을 위해 스케이터 정보를 입력해주세요.</p> */}
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto">
+      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md mx-auto overflow-y-auto">
         {/* 중앙 정렬 및 max-width */}
         <form onSubmit={handleSubmitProfile}>
           {/* 이름 필드 */}

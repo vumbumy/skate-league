@@ -3,7 +3,7 @@ import React from "react";
 const Home = () => {
   return (
     <div className="flex flex-col items-center gap-10">
-      <img src="/logo.png" alt="logo" className="w-2/3" />
+      <img src="/main_banner.webp" alt="logo" className="w-2/3" />
       <span className="text-xl text-white text-center">
         Comming soon
         <br />
