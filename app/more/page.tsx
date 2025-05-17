@@ -124,7 +124,7 @@ const MorePage = () => {
       </div>
 
       {/* 고정된 선수 등록 버튼 */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-30 w-[90%] max-w-md">
         <Link
           href="/signup"
           className="inline-flex items-center justify-center w-full px-8 py-3 text-lg font-medium
