@@ -4,15 +4,17 @@
 import { usePathname } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { useAuth } from "@/context/AuthContext";
 import Avatar from "@/components/Avatar"; // Link 사용 시 필요
 
-// AdminGlobalNavigationBar 컴포넌트의 내용은 이 파일 안으로 통합됩니다.
-// import AdminGlobalNavigationBar from "@/components/AdminGlobalNavigationBar"; // 이 import는 더 이상 필요 없습니다.
+const PATHS_WITHOUT_GNB = ["/login", "/signup"];
 
 // 이제 GnbRenderer 컴포넌트가 GNB 렌더링 로직과 Admin GNB의 UI를 모두 담당합니다.
 const GnbRenderer = () => {
   const pathname = usePathname();
+  if (PATHS_WITHOUT_GNB.includes(pathname)) {
+    return null; // GNB 숨기기
+  }
+
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
