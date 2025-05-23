@@ -1,6 +1,8 @@
 // lib/utils.ts
 
 // Firestore Timestamp 객체를 Date 객체 또는 undefined로 변환하는 헬퍼 함수
+import { Timestamp } from "@firebase/firestore-types";
+
 export const toDateOrUndefined = (timestamp: any): Date | undefined => {
   // 값이 존재하고, toDate 메소드가 함수 타입이라면 (Firestore Timestamp 객체라면)
   if (timestamp && typeof timestamp.toDate === "function") {
@@ -61,4 +63,19 @@ export const formatPhoneNumber = (
 export function capitalizeFirstLetter(val?: string) {
   if (!val) return "??";
   return val.charAt(0).toUpperCase() + String(val).slice(1);
+}
+
+export function toDateString(value?: Timestamp | string | number) {
+  if (!value) {
+    return "";
+  }
+
+  switch (typeof value) {
+    case "string":
+      return value;
+    case "number":
+      return new Date(value).toISOString().split("T")[0];
+    default:
+      return value.toDate().toISOString().split("T")[0];
+  }
 }

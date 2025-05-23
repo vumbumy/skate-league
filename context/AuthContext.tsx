@@ -3,12 +3,12 @@
 
 import {
   createContext,
+  ReactNode,
   useContext,
   useEffect,
   useState,
-  ReactNode,
 } from "react";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase/config"; // Firebase 초기화 파일 경로 (경로 확인 필요)
 import { TailSpin } from "react-loader-spinner";
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   // 또는 Provider를 사용하는 페이지/컴포넌트에서 contextValue.loading을 보고 처리할 수도 있습니다.
   if (loading) {
     return (
-      <div className="flex flex-col justify-center items-center h-screen mx-auto ">
+      <div className="flex flex-col justify-center items-center h-svh mx-auto">
         <TailSpin height={80} width={80} />
         <p className="mt-4 text-white">인증 정보 로딩 중...</p>
       </div>

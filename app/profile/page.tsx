@@ -15,10 +15,11 @@ import { db, storage } from "@/firebase/config"; // db, storage import
 import { TailSpin } from "react-loader-spinner"; // Loading spinner
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
 import { UserData } from "@/types/firebase";
+import { toDateString } from "@/lib/utils";
 
 const CompleteProfilePage = () => {
   // useAuth hook provides user, authLoading, isAdmin, role, userData (initial load from AuthProvider)
-  const { user, loading: authLoading, userData: initialUserData } = useAuth(); // initialUserData는 AuthProvider가 처음에 로드한 사용자 문서 데이터
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams(); // URL 쿼리 파라미터 가져오기
   const redirectLeagueId = searchParams.get("redirect"); // 'redirect' 쿼리 파라미터 값 (리그 ID)
@@ -38,17 +39,18 @@ const CompleteProfilePage = () => {
 
   // 1. 인증 상태 확인 및 비로그인 시 리다이렉트
   useEffect(() => {
-    if (!authLoading) {
-      // AuthProvider 로딩 완료 후
-      if (!user) {
-        console.warn("User not authenticated. Redirecting to login page.");
-        // 스케이터 정보 보완 페이지는 로그인 상태여야 하므로 로그인 페이지로 리다이렉트
-        router.push("/login"); // ★ 로그인 페이지 경로
-      } else {
-        // 로그인 상태이면 기존 프로필 데이터 가져오기
-        fetchProfileData(user.uid);
-      }
+    if (authLoading) {
+      return;
     }
+    // AuthProvider 로딩 완료 후
+    if (!user) {
+      console.warn("User not authenticated. Redirecting to login page.");
+      // 스케이터 정보 보완 페이지는 로그인 상태여야 하므로 로그인 페이지로 리다이렉트
+      router.push("/login"); // ★ 로그인 페이지 경로
+      return;
+    }
+    // 로그인 상태이면 기존 프로필 데이터 가져오기
+    fetchProfileData(user.uid);
     // 이펙트 재실행 조건: user, authLoading 상태 변경 시
   }, [user, authLoading]); // router 제거
 
@@ -61,17 +63,11 @@ const CompleteProfilePage = () => {
       const userDocSnap: DocumentSnapshot<UserData> = (await getDoc(
         userDocRef,
       )) as DocumentSnapshot<UserData>;
-
       if (userDocSnap.exists()) {
         const userData = userDocSnap.data();
         setFetchedUserData(userData); // 가져온 데이터 상태에 저장
         // 폼 초기화: 가져온 데이터 또는 Context의 초기 데이터 사용 (Context 데이터가 더 최신일 수 있음)
-        // AuthProvider가 항상 최신 데이터를 가져온다고 가정하고 initialUserData 사용
-        setProfileData(initialUserData || userData); // Context 데이터 우선, 없으면 새로 가져온 데이터 사용
-        // console.log(
-        //   "Existing user profile data loaded:",
-        //   initialUserData || userData,
-        // );
+        setProfileData(userData); // Context 데이터 우선, 없으면 새로 가져온 데이터 사용
       } else {
         console.warn(
           `User document not found for UID: ${userId}. Starting with empty form.`,
@@ -93,18 +89,17 @@ const CompleteProfilePage = () => {
 
   // 폼 입력 변경 핸들러
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
   ) => {
     const { name, value } = e.target;
     // 생년월일 필드는 Date 객체로 저장하거나 YYYY-MM-DD 문자열로 저장 (Firestore에 Date 객체 권장)
-    if (name === "dateOfBirth") {
-      // input type="date"는 value가 YYYY-MM-DD 문자열입니다.
-      setProfileData({ ...profileData, [name]: value }); // YYYY-MM-DD 문자열 그대로 저장 예시
-      // Firestore에 Date 객체로 저장하려면 저장 시점에 new Date(value) 변환
-      // setProfileData({ ...profileData, [name]: value ? new Date(value) : undefined }); // Date 객체로 상태 저장 예시
-    } else {
-      setProfileData({ ...profileData, [name]: value });
-    }
+    setProfileData({ ...profileData, [name]: value });
+  };
+
+  const handleChangeDateOfBirth = (value: string) => {
+    setProfileData({ ...profileData, dateOfBirth: value }); // YYYY-MM-DD 문자열 그대로 저장 예시
   };
 
   // 프로필 사진 파일 입력 변경 핸들러
@@ -121,7 +116,7 @@ const CompleteProfilePage = () => {
       setProfileData({
         ...profileData,
         profilePictureUrl: fetchedUserData?.profilePictureUrl,
-      }); // 데이터 다시 불러온 initialUserData 사용 가능
+      });
     }
   };
 
@@ -155,7 +150,6 @@ const CompleteProfilePage = () => {
       // UI 상태 업데이트
       setProfileData({ ...profileData, profilePictureUrl: undefined }); // 폼 상태에서 이미지 URL 제거
       setProfilePictureFile(null); // 선택된 파일도 초기화
-      // Context의 initialUserData도 업데이트 (Auth Context에서 다시 불러오거나 수동 업데이트)
       // useAuth() 훅의 userData 상태를 수동으로 업데이트하는 로직 추가 필요 (Context 구현에 따라 다름)
 
       console.log("Profile picture deleted.");
@@ -215,7 +209,6 @@ const CompleteProfilePage = () => {
         ...profileData, // 현재 폼 상태의 데이터
         profilePictureUrl: profilePictureUrl, // 업로드된 URL 또는 기존 URL 또는 null
         // uid, email, createdAt, role 필드는 사용자가 변경할 수 없으므로 업데이트 데이터에 포함하지 않음
-        // Context의 initialUserData에서 가져온 값으로 덮어쓰는 것을 방지
       };
 
       // Firestore에 저장할 최종 데이터에서 undefined 값 제거
@@ -251,7 +244,7 @@ const CompleteProfilePage = () => {
         router.push(`/league/${redirectLeagueId}/register`);
       } else {
         // 리다이렉트 정보가 없으면 기본 페이지로 이동 (예: 마이페이지, 홈)
-        router.push("/login"); // 또는 '/' 등 마이페이지 경로
+        router.push("/"); // 또는 '/' 등 마이페이지 경로
       }
     } catch (error: unknown) {
       console.error("Failed to save user profile:", error);
@@ -267,9 +260,7 @@ const CompleteProfilePage = () => {
     }
   };
 
-  // 폼 초기값 설정을 위한 useEffect (initialUserData 로드 시)
   useEffect(() => {
-    // AuthProvider에서 initialUserData 로드가 완료되고, 아직 폼 데이터가 설정되지 않았을 때
     // fetchedUserData 상태가 null이 아닐 때 (데이터 로딩이 완료되었을 때) 폼 초기화
     if (
       !authLoading &&
@@ -385,8 +376,8 @@ const CompleteProfilePage = () => {
               id="dateOfBirth"
               name="dateOfBirth"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={profileData.dateOfBirth || ""} // YYYY-MM-DD 문자열
-              onChange={handleInputChange}
+              value={toDateString(profileData.dateOfBirth)} // YYYY-MM-DD 문자열
+              onChange={(e) => handleChangeDateOfBirth(e.target.value)}
               required // 필수 입력 필드
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
             />
@@ -400,8 +391,7 @@ const CompleteProfilePage = () => {
             >
               스탠스
             </label>
-            <input
-              type="text"
+            <select
               id="stance"
               name="stance"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -409,7 +399,10 @@ const CompleteProfilePage = () => {
               onChange={handleInputChange}
               // required // 필수 여부는 요구사항에 따라 다름
               disabled={savingProfile || uploadingPicture} // 저장/업로드 중 비활성화
-            />
+            >
+              <option value="구피">구피</option>
+              <option value="레귤러">레귤러</option>
+            </select>
           </div>
 
           {/* 스폰서 필드 */}

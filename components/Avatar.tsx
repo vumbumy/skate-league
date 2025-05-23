@@ -31,8 +31,8 @@ const Avatar = ({ size = 40 }: AvatarProps) => {
         leaveFrom="translate-x-0"
         leaveTo="translate-x-full"
       >
-        <Menu.Items className="fixed right-0 top-0 h-screen w-3/5 bg-black text-white shadow-lg z-[999] focus:outline-none">
-          <div className="flex flex-col h-full ">
+        <Menu.Items className="fixed right-0 top-0 h-svh w-3/5 bg-black text-white shadow-lg z-[999] focus:outline-none">
+          <div className="flex flex-col h-full">
             <Menu.Item>
               {({ active }) => (
                 <Link href="/" className="px-4 py-3 text-md hover:bg-gray-800">
@@ -97,8 +97,7 @@ const Avatar = ({ size = 40 }: AvatarProps) => {
                 </Menu.Item>
               </>
             )}
-
-            <div className="mt-auto p-4 ">
+            <div className="mt-auto p-4">
               <div className="flex space-x-4">
                 <a
                   href="https://www.instagram.com/koreaskateboardingleague"
