@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 // useAuth 훅은 context/AuthContext에서 가져옵니다.
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/components/layout/AuthContext";
 // Firebase 및 Firestore 관련 함수들
 import {
   collection,
@@ -18,7 +18,7 @@ import {
   where,
 } from "firebase/firestore"; // 필요한 함수 import
 // Firebase Storage (배너 이미지 업로드 시 필요)
-import { db, storage } from "@/firebase/config"; // db import 유지 // config 파일에 storage 초기화 추가 필요
+import { db, storage } from "@/lib/firebase"; // db import 유지 // config 파일에 storage 초기화 추가 필요
 import {
   deleteObject,
   getDownloadURL,
@@ -28,7 +28,7 @@ import {
 // 로딩 스피너
 import { TailSpin } from "react-loader-spinner";
 import Link from "next/link";
-import { League, UserData } from "@/types/firebase";
+import { League, UserData } from "@/types/user";
 import { formatPhoneNumber, toDateOrUndefined } from "@/lib/utils"; // 링크 이동을 위해 Link 컴포넌트 import
 
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)

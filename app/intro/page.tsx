@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 const MorePage = () => {
   return <h1>vento skate league</h1>;

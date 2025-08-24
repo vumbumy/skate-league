@@ -10,16 +10,10 @@ import {
 } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "@/firebase/config"; // Firebase 초기화 파일 경로 (경로 확인 필요)
+import { auth, db } from "@/lib/firebase";
 import { TailSpin } from "react-loader-spinner";
-import { UserData } from "@/types/firebase"; // 로딩 스피너 (설치 필요)
-
-interface AuthContextType {
-  user: User | null;
-  userData: UserData | null; // ★ 이 라인이 있는지 확인
-  loading: boolean; // 초기 인증 상태 확인 중인지 여부
-  isAdmin: boolean; // 관리자 여부 편의 속성
-}
+import { UserData } from "@/types/user";
+import { AuthContextType } from "@/types/auth";
 
 // Context 생성 (기본값은 초기 상태)
 const AuthContext = createContext<AuthContextType>({

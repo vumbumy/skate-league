@@ -4,9 +4,9 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { collection, getDocs } from "firebase/firestore"; // Firestore 데이터 가져오기 함수
-import { db } from "@/firebase/config"; // db import
+import { db } from "@/lib/firebase"; // db import
 import { TailSpin } from "react-loader-spinner";
-import { League } from "@/types/firebase";
+import { League } from "@/types/user";
 import { toDateOrUndefined } from "@/lib/utils"; // 로딩 스피너
 
 const LeagueSchedulePage = () => {

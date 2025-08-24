@@ -1,5 +1,5 @@
 import { Instagram } from "lucide-react";
-import { UserData } from "@/types/firebase";
+import { UserData } from "@/types/user";
 import { capitalizeFirstLetter, toDateOrUndefined } from "@/lib/utils";
 
 const SkaterProfileCard = ({ skater }: { skater: UserData }) => {

@@ -1,9 +1,9 @@
 import { Menu, Transition } from "@headlessui/react";
 import { signOut } from "firebase/auth";
-import { auth } from "@/firebase/config";
+import { auth } from "@/lib/firebase";
 import Link from "next/link";
 import React, { Fragment } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/components/layout/AuthContext";
 import { Bars3Icon } from "@heroicons/react/24/outline";
 
 interface AvatarProps {

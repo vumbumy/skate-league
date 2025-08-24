@@ -2,8 +2,8 @@
 
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
-import { db } from "@/firebase/config";
-import { UserData } from "@/types/firebase";
+import { db } from "@/lib/firebase";
+import { UserData } from "@/types/user";
 import SkaterProfileCard from "@/components/SkaterProfileCard";
 import { toDateOrUndefined } from "@/lib/utils";
 import Link from "next/link";

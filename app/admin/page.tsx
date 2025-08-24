@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 // useAuth 훅은 context/AuthContext에서 가져옵니다.
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/components/layout/AuthContext";
 // Firebase 및 Firestore 관련 함수들
 import {
   addDoc,
@@ -14,7 +14,7 @@ import {
   getDocs,
 } from "firebase/firestore";
 import { signOut } from "firebase/auth"; // 로그아웃 함수 필요시 사용
-import { auth, db } from "@/firebase/config"; // auth, db import 유지
+import { auth, db } from "@/lib/firebase"; // auth, db import 유지
 // 로딩 스피너
 import { TailSpin } from "react-loader-spinner";
 import Link from "next/link";

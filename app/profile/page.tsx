@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation"; // useSearchParams import
-import { useAuth } from "@/context/AuthContext"; // useAuth hook
+import { useAuth } from "@/components/layout/AuthContext"; // useAuth hook
 import { doc, DocumentSnapshot, getDoc, updateDoc } from "firebase/firestore"; // Firestore functions
 import {
   deleteObject,
@@ -11,10 +11,10 @@ import {
   ref,
   uploadBytes,
 } from "firebase/storage"; // Storage functions
-import { db, storage } from "@/firebase/config"; // db, storage import
+import { db, storage } from "@/lib/firebase"; // db, storage import
 import { TailSpin } from "react-loader-spinner"; // Loading spinner
 // 필요한 인터페이스 import (types/index.ts 파일에서 import)
-import { UserData } from "@/types/firebase";
+import { UserData } from "@/types/user";
 import { toDateString } from "@/lib/utils";
 
 const CompleteProfilePage = () => {

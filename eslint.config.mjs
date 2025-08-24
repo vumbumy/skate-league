@@ -19,9 +19,7 @@ const eslintConfig = [
   {
     rules: {
       "@typescript-eslint/no-explicit-any": "off", // 'any' 타입 허용 (필요시 'warn' 등으로 변경)
-      "eslint/no-unused-vars": "warn", // 사용되지 않는 변수는 경고로 표시 (에러로 하고 싶으면 "error")
-      // @typescript-eslint 플러그인을 사용하면 보통 해당 플러그인의 no-unused-vars 규칙을 사용합니다.
-      // "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-unused-vars": "warn", // 사용되지 않는 변수는 경고로 표시
     },
   },
 

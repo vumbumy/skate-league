@@ -1,8 +1,8 @@
 // app/layout.tsx
 
 import "./globals.css";
-import { AuthProvider } from "@/context/AuthContext";
-import GnbRenderer from "@/components/GNBRenderer";
+import { AuthProvider } from "@/components/layout/AuthContext";
+import GnbRenderer from "@/components/layout/GNBRenderer";
 import { Viewport } from "next";
 
 export const viewport: Viewport = {

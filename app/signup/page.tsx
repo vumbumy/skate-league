@@ -2,7 +2,7 @@
 "use client"; // 클라이언트 컴포넌트임을 명시
 
 import { useState } from "react";
-import { auth, db } from "@/firebase/config"; // Firebase 초기화 파일 경로 (경로 확인 필요)
+import { auth, db } from "@/lib/firebase"; // Firebase 초기화 파일 경로 (경로 확인 필요)
 import { createUserWithEmailAndPassword } from "firebase/auth"; // Firebase Auth 가입 함수
 import { doc, setDoc } from "firebase/firestore"; // Firestore 데이터 추가 함수
 import { useRouter } from "next/navigation";
